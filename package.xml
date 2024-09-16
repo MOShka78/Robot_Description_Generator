@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>generate_robot_urdf</name>
+  <version>0.0.0</version>
+  <description>generate_robot_urdf</description>
+  <maintainer email="v.eliseev@rtc.ru">eliseev</maintainer>
+  <license>BSD-3-Clause</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <exec_depend>yaml-cpp</exec_depend>
+  <exec_depend>moveit_core</exec_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

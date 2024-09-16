@@ -1,0 +1,267 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+ <xacro:macro name="solid3" params="parent_link">
+
+   <xacro:property name="yaml_path" value="$(find generate_robot_urdf)/config/output/joint_limits.yaml" />
+   <xacro:property name="yaml_file" value="${xacro.load_yaml(yaml_path)}"/>
+
+   <!-- link mass [kg] -->
+   <xacro:property name="base_link_mass" value="${yaml_file['link_mass']['base_link']['mass']}"/>
+   <xacro:property name="flange_link_mass" value="${yaml_file['link_mass']['flange_link']['mass']}"/>
+   <xacro:property name="link1_mass" value="${yaml_file['link_mass']['link1']['mass']}"/>
+   <xacro:property name="link2_mass" value="${yaml_file['link_mass']['link2']['mass']}"/>
+   <xacro:property name="link3_mass" value="${yaml_file['link_mass']['link3']['mass']}"/>
+   <xacro:property name="link4_1_mass" value="${yaml_file['link_mass']['link4_1']['mass']}"/>
+   <xacro:property name="link4_2_mass" value="${yaml_file['link_mass']['link4_2']['mass']}"/>
+
+   <!-- joint limits [rad] -->
+   <xacro:property name="flange_joint_lower_limit" value="${yaml_file['joints_limits']['flange_joint']['min_position']}"/>
+   <xacro:property name="flange_joint_upper_limit" value="${yaml_file['joints_limits']['flange_joint']['max_position']}"/>
+   <xacro:property name="joint1_lower_limit" value="${yaml_file['joints_limits']['joint1']['min_position']}"/>
+   <xacro:property name="joint1_upper_limit" value="${yaml_file['joints_limits']['joint1']['max_position']}"/>
+   <xacro:property name="joint2_lower_limit" value="${yaml_file['joints_limits']['joint2']['min_position']}"/>
+   <xacro:property name="joint2_upper_limit" value="${yaml_file['joints_limits']['joint2']['max_position']}"/>
+   <xacro:property name="joint3_lower_limit" value="${yaml_file['joints_limits']['joint3']['min_position']}"/>
+   <xacro:property name="joint3_upper_limit" value="${yaml_file['joints_limits']['joint3']['max_position']}"/>
+   <xacro:property name="joint4_1_lower_limit" value="${yaml_file['joints_limits']['joint4_1']['min_position']}"/>
+   <xacro:property name="joint4_1_upper_limit" value="${yaml_file['joints_limits']['joint4_1']['max_position']}"/>
+   <xacro:property name="joint4_2_lower_limit" value="${yaml_file['joints_limits']['joint4_2']['min_position']}"/>
+   <xacro:property name="joint4_2_upper_limit" value="${yaml_file['joints_limits']['joint4_2']['max_position']}"/>
+
+   <!-- joint velocity limits [rad/s] -->
+   <xacro:property name="flange_joint_velocity_limit" value="${yaml_file['joints_limits']['flange_joint']['max_velocity']}"/>
+   <xacro:property name="joint1_velocity_limit" value="${yaml_file['joints_limits']['joint1']['max_velocity']}"/>
+   <xacro:property name="joint2_velocity_limit" value="${yaml_file['joints_limits']['joint2']['max_velocity']}"/>
+   <xacro:property name="joint3_velocity_limit" value="${yaml_file['joints_limits']['joint3']['max_velocity']}"/>
+   <xacro:property name="joint4_1_velocity_limit" value="${yaml_file['joints_limits']['joint4_1']['max_velocity']}"/>
+   <xacro:property name="joint4_2_velocity_limit" value="${yaml_file['joints_limits']['joint4_2']['max_velocity']}"/>
+
+   <!-- joint effort limits -->
+   <xacro:property name="flange_joint_effort_limit" value="${yaml_file['joints_limits']['flange_joint']['max_effort']}"/>
+   <xacro:property name="joint1_effort_limit" value="${yaml_file['joints_limits']['joint1']['max_effort']}"/>
+   <xacro:property name="joint2_effort_limit" value="${yaml_file['joints_limits']['joint2']['max_effort']}"/>
+   <xacro:property name="joint3_effort_limit" value="${yaml_file['joints_limits']['joint3']['max_effort']}"/>
+   <xacro:property name="joint4_1_effort_limit" value="${yaml_file['joints_limits']['joint4_1']['max_effort']}"/>
+   <xacro:property name="joint4_2_effort_limit" value="${yaml_file['joints_limits']['joint4_2']['max_effort']}"/>
+
+
+   <!-- base_link -->
+    <joint name="${parent_link}-base_link" type="fixed">
+     <parent link="${parent_link}"/>
+     <child link="base_link"/>
+     <origin xyz="0 0 0" rpy="0 0 0"/>
+   </joint>
+   <link name="base_link">
+     <visual>
+       <geometry>
+         <mesh filename="package://package_name/TODO.STL"/>
+       </geometry>
+       <material name="">
+         <color rgba="0.666667 0.698039 0.768627 1" />
+       </material>
+       <origin xyz="0 0 0" rpy="0 -0 0"/>
+     </visual>
+     <collision>
+       <geometry>
+         <mesh filename="package://package_name/TODO.STL"/>
+       </geometry>
+       <origin xyz="0 0 0" rpy="0 -0 0"/>
+     </collision>
+     <inertial>
+       <origin xyz="0 0 0" rpy="0 0 0"/>
+       <mass value="${base_link_mass}"/>
+       <inertia ixx="0.239137" ixy="-0.000543649" ixz="-0.0422495" iyy="0.822805" iyz="0.0168714" izz="0.650319"/>
+     </inertial>
+   </link>
+
+
+   <!-- flange_link -->
+    <joint name="flange_joint" type="fixed">
+     <parent link="link4_2"/>
+     <child link="flange_link"/>
+     <origin xyz="-0.04 0 0" rpy="1.5708 -0 -1.5708" />
+   </joint>
+   <link name="flange_link">
+     <visual>
+       <geometry>
+         <mesh filename="package://package_name/TODO.STL"/>
+       </geometry>
+       <material name="">
+         <color rgba="0.686275 0.686275 0.686275 1" />
+       </material>
+       <origin xyz="0 0 0" rpy="0 -0 0"/>
+     </visual>
+     <collision>
+       <geometry>
+         <mesh filename="package://package_name/TODO.STL"/>
+       </geometry>
+       <origin xyz="0 0 0" rpy="0 -0 0"/>
+     </collision>
+     <inertial>
+       <origin xyz="0 0 0" rpy="0 0 0"/>
+       <mass value="${flange_link_mass}"/>
+       <inertia ixx="7.13939e-06" ixy="-3.74347e-06" ixz="-2.16108e-06" iyy="7.6555e-06" iyz="-2.57612e-06" izz="1.06292e-05"/>
+     </inertial>
+   </link>
+
+
+   <!-- link1 -->
+    <joint name="joint1" type="revolute">
+     <axis xyz="0 0 0" rpy="0 0 0"/>
+     <limit effort="${joint1_effort_limit}" lower="${joint1_lower_limit}" upper="${joint1_upper_limit}" velocity="${joint1_velocity_limit}"/>
+     <parent link="base_link"/>
+     <child link="link1"/>
+     <origin xyz="0.29801 0.2 0" rpy="1.5708 4.23516e-22 3.14159" />
+   </joint>
+   <link name="link1">
+     <visual>
+       <geometry>
+         <mesh filename="package://package_name/TODO.STL"/>
+       </geometry>
+       <material name="">
+         <color rgba="0.666667 0.698039 0.768627 1" />
+       </material>
+       <origin xyz="0 0 0" rpy="0 -0 0"/>
+     </visual>
+     <collision>
+       <geometry>
+         <mesh filename="package://package_name/TODO.STL"/>
+       </geometry>
+       <origin xyz="0 0 0" rpy="0 -0 0"/>
+     </collision>
+     <inertial>
+       <origin xyz="0 0 0" rpy="0 0 0"/>
+       <mass value="${link1_mass}"/>
+       <inertia ixx="0.0335604" ixy="0.00134262" ixz="-0.00147165" iyy="0.0408708" iyz="-0.00283855" izz="0.0310491"/>
+     </inertial>
+   </link>
+
+
+   <!-- link2 -->
+    <joint name="joint2" type="revolute">
+     <axis xyz="0 0 0" rpy="0 0 0"/>
+     <limit effort="${joint2_effort_limit}" lower="${joint2_lower_limit}" upper="${joint2_upper_limit}" velocity="${joint2_velocity_limit}"/>
+     <parent link="link1"/>
+     <child link="link2"/>
+     <origin xyz="-0.13 0 -0.008" rpy="1.5708 -0 0" />
+   </joint>
+   <link name="link2">
+     <visual>
+       <geometry>
+         <mesh filename="package://package_name/TODO.STL"/>
+       </geometry>
+       <material name="">
+         <color rgba="0.666667 0.698039 0.768627 1" />
+       </material>
+       <origin xyz="0 0 0" rpy="0 -0 0"/>
+     </visual>
+     <collision>
+       <geometry>
+         <mesh filename="package://package_name/TODO.STL"/>
+       </geometry>
+       <origin xyz="0 0 0" rpy="0 -0 0"/>
+     </collision>
+     <inertial>
+       <origin xyz="0 0 0" rpy="0 0 0"/>
+       <mass value="${link2_mass}"/>
+       <inertia ixx="0.0910387" ixy="0.0911757" ixz="-4.77491e-05" iyy="1.31424" iyz="1.26739e-05" izz="1.3626"/>
+     </inertial>
+   </link>
+
+
+   <!-- link3 -->
+    <joint name="joint3" type="revolute">
+     <axis xyz="0 0 0" rpy="0 0 0"/>
+     <limit effort="${joint3_effort_limit}" lower="${joint3_lower_limit}" upper="${joint3_upper_limit}" velocity="${joint3_velocity_limit}"/>
+     <parent link="link2"/>
+     <child link="link3"/>
+     <origin xyz="-0.99745 0.08447 0" rpy="-3.14159 -0 -3.14159" />
+   </joint>
+   <link name="link3">
+     <visual>
+       <geometry>
+         <mesh filename="package://package_name/TODO.STL"/>
+       </geometry>
+       <material name="">
+         <color rgba="0.776471 0.756863 0.737255 1" />
+       </material>
+       <origin xyz="0 0 0" rpy="0 -0 0"/>
+     </visual>
+     <collision>
+       <geometry>
+         <mesh filename="package://package_name/TODO.STL"/>
+       </geometry>
+       <origin xyz="0 0 0" rpy="0 -0 0"/>
+     </collision>
+     <inertial>
+       <origin xyz="0 0 0" rpy="0 0 0"/>
+       <mass value="${link3_mass}"/>
+       <inertia ixx="0.0708796" ixy="-0.000363986" ixz="2.1758e-07" iyy="0.376412" iyz="3.31826e-06" izz="0.406089"/>
+     </inertial>
+   </link>
+
+
+   <!-- link4_1 -->
+    <joint name="joint4_1" type="revolute">
+     <axis xyz="0 0 0" rpy="0 0 0"/>
+     <limit effort="${joint4_1_effort_limit}" lower="${joint4_1_lower_limit}" upper="${joint4_1_upper_limit}" velocity="${joint4_1_velocity_limit}"/>
+     <parent link="link3"/>
+     <child link="link4_1"/>
+     <origin xyz="0.64199 0.11496 0" rpy="0 0 -0.039157" />
+   </joint>
+   <link name="link4_1">
+     <visual>
+       <geometry>
+         <mesh filename="package://package_name/TODO.STL"/>
+       </geometry>
+       <material name="">
+         <color rgba="0.776471 0.756863 0.737255 1" />
+       </material>
+       <origin xyz="0 0 0" rpy="0 -0 0"/>
+     </visual>
+     <collision>
+       <geometry>
+         <mesh filename="package://package_name/TODO.STL"/>
+       </geometry>
+       <origin xyz="0 0 0" rpy="0 -0 0"/>
+     </collision>
+     <inertial>
+       <origin xyz="0 0 0" rpy="0 0 0"/>
+       <mass value="${link4_1_mass}"/>
+       <inertia ixx="0.00324757" ixy="2.59529e-07" ixz="2.83068e-12" iyy="0.000233302" iyz="2.47242e-12" izz="0.00329486"/>
+     </inertial>
+   </link>
+
+
+   <!-- link4_2 -->
+    <joint name="joint4_2" type="revolute">
+     <axis xyz="0 0 0" rpy="0 0 0"/>
+     <limit effort="${joint4_2_effort_limit}" lower="${joint4_2_lower_limit}" upper="${joint4_2_upper_limit}" velocity="${joint4_2_velocity_limit}"/>
+     <parent link="link4_1"/>
+     <child link="link4_2"/>
+     <origin xyz="0 0 0" rpy="1.5708 -4.23516e-22 -3.14159" />
+   </joint>
+   <link name="link4_2">
+     <visual>
+       <geometry>
+         <mesh filename="package://package_name/TODO.STL"/>
+       </geometry>
+       <material name="">
+         <color rgba="0.776471 0.756863 0.737255 1" />
+       </material>
+       <origin xyz="0 0 0" rpy="0 -0 0"/>
+     </visual>
+     <collision>
+       <geometry>
+         <mesh filename="package://package_name/TODO.STL"/>
+       </geometry>
+       <origin xyz="0 0 0" rpy="0 -0 0"/>
+     </collision>
+     <inertial>
+       <origin xyz="0 0 0" rpy="0 0 0"/>
+       <mass value="${link4_2_mass}"/>
+       <inertia ixx="0.0151881" ixy="1.72587e-10" ixz="-0.000581807" iyy="0.00997417" iyz="-3.23711e-09" izz="0.00744302"/>
+     </inertial>
+   </link>
+ </xacro:macro>
+</robot>
