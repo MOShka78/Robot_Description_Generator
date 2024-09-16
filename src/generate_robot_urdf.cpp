@@ -8,7 +8,7 @@ GenerateRobotURDF::GenerateRobotURDF(std::string path_dir, std::string filename)
   createCmakeLists();
   createPackageXML();
   createLaunch();
-  setPathMesh();
+  generateURDFcommon();
   generateYAMLlimit();
   generateURDFInc();
   generateURDFmacro();
@@ -72,11 +72,10 @@ void GenerateRobotURDF::setProperty(std::ofstream& file) {
   file << "     <xacro:property name=\"yaml_file\" value=\"${xacro.load_yaml(" +
               path_dir_ + tf_tree_->name_ + "_property.xacro" + ")}\"/>\n";
 
-  file << "   <!-- TODO -->\n";
-  file << "   <!-- <xacro:property name=\"yaml_path\" value=\"$(find "
-          "generate_robot_urdf)/config/output/joint_limits.yaml\" /> -->\n";
-  file << "   <!-- <xacro:property name=\"yaml_file\" "
-          "value=\"${xacro.load_yaml(yaml_path)}\"/> -->\n\n";
+  file << "   <xacro:property name=\"yaml_path\" value=\"$(find " +
+              new_package_name + ")/config/joint_limits.yaml\" />\n";
+  file << "   <xacro:property name=\"yaml_file\" "
+          "value=\"${xacro.load_yaml(yaml_path)}\"/>\n\n";
 
   file << "   <!-- link mass [kg] -->\n";
   for (const auto& [link_name, link_value] : tf_tree_->links_) {
@@ -124,12 +123,9 @@ void GenerateRobotURDF::generateURDFmacro() {
   xacro_macro_robot << " <xacro:macro name=\"" << tf_tree_->name_
                     << "\" params=\"parent_link\">\n\n";
 
-  xacro_macro_robot << "<xacro:include filename=\"$(find " + path_dir_ +
-                           tf_tree_->name_ + "_macro.xacro" + "\" />\n";
-
-  xacro_macro_robot << "  <!-- TODO -->\n";
-  xacro_macro_robot << "  <!-- <xacro:include filename=\"$(find "
-                       "ur_description)/urdf/inc/ur_common.xacro\" /> -->/n";
+  xacro_macro_robot << "  <xacro:include filename=\"$(find " +
+                           new_package_name + ")/urdf/inc/" + tf_tree_->name_ +
+                           "_property.xacro\" />/n";
 
   addJointsLinks(xacro_macro_robot);
 
@@ -140,6 +136,7 @@ void GenerateRobotURDF::generateURDFmacro() {
 void GenerateRobotURDF::addJointsLinks(std::ofstream& file) {
   for (const auto& [link_name, link_value] : tf_tree_->links_) {
     file << "\n\n   <!-- " << link_name << " -->\n";
+
     if (link_value->parent_joint != nullptr) {
       file << "    <joint name=\"" << link_value->parent_joint->name
            << "\" type=\"" << getTypeJoint(link_value->parent_joint->type)
@@ -188,7 +185,8 @@ void GenerateRobotURDF::addJointsLinks(std::ofstream& file) {
     file << "   <link name=\"" << link_name << "\">\n";
     file << "     <visual>\n";
     file << "       <geometry>\n";
-    file << "         <mesh filename=\"" + link_path_mesh[link_name] + "\"/>\n";
+    file << "         <mesh filename=\"package://" + new_package_name +
+                "/meshes/visual/" + link_name + ".STL\"/>\n";
     file << "       </geometry>\n";
     file << "       <material name=\"" << link_value->visual->material_name
          << "\">\n";
@@ -208,7 +206,8 @@ void GenerateRobotURDF::addJointsLinks(std::ofstream& file) {
     file << "     </visual>\n";
     file << "     <collision>\n";
     file << "       <geometry>\n";
-    file << "         <mesh filename=\"" + link_path_mesh[link_name] + "\"/>\n";
+    file << "         <mesh filename=\"package://" + new_package_name +
+                "/meshes/collision/" + link_name + ".STL\"/>\n";
     file << "       </geometry>\n";
 
     double roll_c, pitch_c, yaw_c;
@@ -233,6 +232,29 @@ void GenerateRobotURDF::addJointsLinks(std::ofstream& file) {
     file << "   </link>\n";
   }
 }
+void GenerateRobotURDF::generateURDFcommon() {
+  std::ofstream xacro_macro_robot(path_dir_ + "urdf/" + tf_tree_->name_ +
+                                  ".urdf.xacro");
+
+  xacro_macro_robot << "<?xml version=\"1.0\" ?>\n";
+  xacro_macro_robot << "<robot name=\"" << tf_tree_->name_
+                    << "\" xmlns:xacro=\"http://ros.org/wiki/xacro\">\n\n";
+
+  xacro_macro_robot << "  <link name=\"world\"/>\n\n";
+
+  xacro_macro_robot << "  <joint name=\"world2base\" type=\"fixed\">\n";
+  xacro_macro_robot << "    <parent link=\"world\"/>\n";
+  xacro_macro_robot << "    <child link=\"base_link\"/>\n";
+  xacro_macro_robot << "    <origin xyz=\"0 0 0\" rpy=\"0 0 0\"/>\n";
+  xacro_macro_robot << "  </joint>\n\n";
+
+  xacro_macro_robot << "  <xacro:include filename=\"$(find " +
+                           new_package_name + ")/urdf/" + tf_tree_->name_ +
+                           "_macro.xacro\"/>\n";
+  xacro_macro_robot << "  <xacro:" + tf_tree_->name_ +
+                           " parent_link=\"world\"/>\n";
+  xacro_macro_robot << "</robot>\n";
+}
 
 std::string GenerateRobotURDF::getTypeJoint(uint8_t type) {
   switch (type) {
@@ -251,31 +273,33 @@ std::string GenerateRobotURDF::getTypeJoint(uint8_t type) {
   }
 }
 
-void GenerateRobotURDF::setPathMesh() {
-  auto doc_xml = urdf::exportURDF(tf_tree_);
+// void GenerateRobotURDF::setPathMesh() {
+//   auto doc_xml = urdf::exportURDF(tf_tree_);
 
-  TiXmlPrinter printer;
-  printer.SetIndent("  ");
-  doc_xml->Accept(&printer);
-  std::string urdf_str = printer.Str();
+//   TiXmlPrinter printer;
+//   printer.SetIndent("  ");
+//   doc_xml->Accept(&printer);
+//   std::string urdf_str = printer.Str();
 
-  while (urdf_str.find("<link name=\"") != std::string::npos) {
-    std::string link_name = urdf_str.substr(urdf_str.find("<link name=\"") +
-                                            sizeof("<link name=\"") - 1);
+//   while (urdf_str.find("<link name=\"") != std::string::npos) {
+//     std::string link_name = urdf_str.substr(urdf_str.find("<link name=\"") +
+//                                             sizeof("<link name=\"") - 1);
 
-    link_name = link_name.substr(0, link_name.find("\""));
+//     link_name = link_name.substr(0, link_name.find("\""));
 
-    urdf_str.erase(0, urdf_str.find("<link name=\"") + sizeof("<link name=\"") -
-                          1 + link_name.length());
+//     urdf_str.erase(0, urdf_str.find("<link name=\"") + sizeof("<link
+//     name=\"") -
+//                           1 + link_name.length());
 
-    std::string path_mesh = urdf_str.substr(urdf_str.find("<mesh filename=\"") +
-                                            sizeof("<mesh filename=\"") - 1);
+//     std::string path_mesh = urdf_str.substr(urdf_str.find("<mesh
+//     filename=\"") +
+//                                             sizeof("<mesh filename=\"") - 1);
 
-    path_mesh = path_mesh.substr(0, path_mesh.find("\""));
+//     path_mesh = path_mesh.substr(0, path_mesh.find("\""));
 
-    link_path_mesh.insert({link_name, path_mesh});
-  }
-}
+//     link_path_mesh.insert({link_name, path_mesh});
+//   }
+// }
 
 void GenerateRobotURDF::createCmakeLists() {
   std::ifstream myfile;

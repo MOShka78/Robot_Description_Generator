@@ -18,8 +18,9 @@ class GenerateRobotURDF {
   void generateYAMLlimit();
   void generateURDFInc();
   void generateURDFmacro();
+  void generateURDFcommon();
 
-  void setPathMesh();
+  // void setPathMesh();
   void setProperty(std::ofstream& file);
   void addJointsLinks(std::ofstream& file);
   void makeDirPackage();
@@ -33,7 +34,7 @@ class GenerateRobotURDF {
   std::string filename_;
   std::string new_package_name;
 
-  std::map<std::string, std::string> link_path_mesh;
+  // std::map<std::string, std::string> link_path_mesh;
 
   URDFPtr tf_tree_;
 };
