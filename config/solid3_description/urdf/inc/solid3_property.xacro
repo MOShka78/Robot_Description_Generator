@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://ros.org/wiki/xacro">
   <xacro:macro name="solid3_property">
-     <xacro:property name="yaml_file" value="${xacro.load_yaml(/home/eliseev/workspace/urdf_expansion_ws/src/URDF_Expansion/config/input/solid3_property.xacro)}"/>
+     <xacro:property name="yaml_file" value="${xacro.load_yaml(/home/eliseev/workspace/urdf_expansion_ws/src/URDF_Expansion/config//solid3_description/solid3_property.xacro)}"/>
    <!-- TODO -->
    <!-- <xacro:property name="yaml_path" value="$(find generate_robot_urdf)/config/output/joint_limits.yaml" /> -->
    <!-- <xacro:property name="yaml_file" value="${xacro.load_yaml(yaml_path)}"/> -->

@@ -1,3 +1,4 @@
+#include <sys/stat.h>
 #include <unistd.h>
 #include <urdfdom/urdf_parser/urdf_parser.h>
 
@@ -21,11 +22,16 @@ class GenerateRobotURDF {
   void setPathMesh();
   void setProperty(std::ofstream& file);
   void addJointsLinks(std::ofstream& file);
+  void makeDirPackage();
+  void createCmakeLists();
+  void createLaunch();
+  void createPackageXML();
 
   std::string getTypeJoint(uint8_t type);
 
   std::string path_dir_;
   std::string filename_;
+  std::string new_package_name;
 
   std::map<std::string, std::string> link_path_mesh;
 

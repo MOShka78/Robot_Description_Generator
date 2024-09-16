@@ -2,7 +2,7 @@
 <robot xmlns:xacro="http://ros.org/wiki/xacro">
  <xacro:macro name="solid3" params="parent_link">
 
-<xacro:include filename="$(find /home/eliseev/workspace/urdf_expansion_ws/src/URDF_Expansion/config/input/solid3_macro.xacro" />
+<xacro:include filename="$(find /home/eliseev/workspace/urdf_expansion_ws/src/URDF_Expansion/config//solid3_description/solid3_macro.xacro" />
   <!-- TODO -->
   <!-- <xacro:include filename="$(find ur_description)/urdf/inc/ur_common.xacro" /> -->/n
 
