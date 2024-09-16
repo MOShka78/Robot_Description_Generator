@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:macro name="solid3_property">
+     <xacro:property name="yaml_file" value="${xacro.load_yaml(/home/eliseev/workspace/urdf_expansion_ws/src/URDF_Expansion/config/input/solid3_property.xacro)}"/>
+   <!-- TODO -->
+   <!-- <xacro:property name="yaml_path" value="$(find generate_robot_urdf)/config/output/joint_limits.yaml" /> -->
+   <!-- <xacro:property name="yaml_file" value="${xacro.load_yaml(yaml_path)}"/> -->
+
+   <!-- link mass [kg] -->
+   <xacro:property name="base_link_mass" value="${yaml_file['link_mass']['base_link']['mass']}"/>
+   <xacro:property name="flange_link_mass" value="${yaml_file['link_mass']['flange_link']['mass']}"/>
+   <xacro:property name="link1_mass" value="${yaml_file['link_mass']['link1']['mass']}"/>
+   <xacro:property name="link2_mass" value="${yaml_file['link_mass']['link2']['mass']}"/>
+   <xacro:property name="link3_mass" value="${yaml_file['link_mass']['link3']['mass']}"/>
+   <xacro:property name="link4_1_mass" value="${yaml_file['link_mass']['link4_1']['mass']}"/>
+   <xacro:property name="link4_2_mass" value="${yaml_file['link_mass']['link4_2']['mass']}"/>
+
+   <!-- joint limits [rad] -->
+   <xacro:property name="flange_joint_lower_limit" value="${yaml_file['joints_limits']['flange_joint']['min_position']}"/>
+   <xacro:property name="flange_joint_upper_limit" value="${yaml_file['joints_limits']['flange_joint']['max_position']}"/>
+   <xacro:property name="joint1_lower_limit" value="${yaml_file['joints_limits']['joint1']['min_position']}"/>
+   <xacro:property name="joint1_upper_limit" value="${yaml_file['joints_limits']['joint1']['max_position']}"/>
+   <xacro:property name="joint2_lower_limit" value="${yaml_file['joints_limits']['joint2']['min_position']}"/>
+   <xacro:property name="joint2_upper_limit" value="${yaml_file['joints_limits']['joint2']['max_position']}"/>
+   <xacro:property name="joint3_lower_limit" value="${yaml_file['joints_limits']['joint3']['min_position']}"/>
+   <xacro:property name="joint3_upper_limit" value="${yaml_file['joints_limits']['joint3']['max_position']}"/>
+   <xacro:property name="joint4_1_lower_limit" value="${yaml_file['joints_limits']['joint4_1']['min_position']}"/>
+   <xacro:property name="joint4_1_upper_limit" value="${yaml_file['joints_limits']['joint4_1']['max_position']}"/>
+   <xacro:property name="joint4_2_lower_limit" value="${yaml_file['joints_limits']['joint4_2']['min_position']}"/>
+   <xacro:property name="joint4_2_upper_limit" value="${yaml_file['joints_limits']['joint4_2']['max_position']}"/>
+
+   <!-- joint velocity limits [rad/s] -->
+   <xacro:property name="flange_joint_velocity_limit" value="${yaml_file['joints_limits']['flange_joint']['max_velocity']}"/>
+   <xacro:property name="joint1_velocity_limit" value="${yaml_file['joints_limits']['joint1']['max_velocity']}"/>
+   <xacro:property name="joint2_velocity_limit" value="${yaml_file['joints_limits']['joint2']['max_velocity']}"/>
+   <xacro:property name="joint3_velocity_limit" value="${yaml_file['joints_limits']['joint3']['max_velocity']}"/>
+   <xacro:property name="joint4_1_velocity_limit" value="${yaml_file['joints_limits']['joint4_1']['max_velocity']}"/>
+   <xacro:property name="joint4_2_velocity_limit" value="${yaml_file['joints_limits']['joint4_2']['max_velocity']}"/>
+
+   <!-- joint effort limits -->
+   <xacro:property name="flange_joint_effort_limit" value="${yaml_file['joints_limits']['flange_joint']['max_effort']}"/>
+   <xacro:property name="joint1_effort_limit" value="${yaml_file['joints_limits']['joint1']['max_effort']}"/>
+   <xacro:property name="joint2_effort_limit" value="${yaml_file['joints_limits']['joint2']['max_effort']}"/>
+   <xacro:property name="joint3_effort_limit" value="${yaml_file['joints_limits']['joint3']['max_effort']}"/>
+   <xacro:property name="joint4_1_effort_limit" value="${yaml_file['joints_limits']['joint4_1']['max_effort']}"/>
+   <xacro:property name="joint4_2_effort_limit" value="${yaml_file['joints_limits']['joint4_2']['max_effort']}"/>
+  </xacro:macro>
+</robot>
