@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 3.8)
-project(generate_robot_urdf)
+cmake_minimum_required(VERSION 3.22)
+project(urdf_expansion)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -20,29 +20,28 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(yaml-cpp)
 
-set(GENERATE_ROBOT_URDF_LIBS moveit_core)
+set(URDF_EXPANSION_LIBS rclcpp urdf urdfdom urdfdom_headers)
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
 
-foreach(Dependency IN ITEMS ${GENERATE_ROBOT_URDF_LIBS})
+foreach(Dependency IN ITEMS ${URDF_EXPANSION_LIBS})
   find_package(${Dependency} REQUIRED)
 endforeach()
 
 include_directories(include)
+include_directories(${URDFDOM_INCLUDE_DIRS})
 
-add_executable(generate_robot_urdf src/generate_robot_urdf.cpp)
+add_executable(urdf_expansion src/urdf_expansion.cpp)
 
-ament_target_dependencies(generate_robot_urdf PUBLIC
-                          ${GENERATE_ROBOT_URDF_LIBS})
-target_link_libraries(generate_robot_urdf PUBLIC yaml-cpp::yaml-cpp)
+ament_target_dependencies(urdf_expansion PUBLIC ${URDF_EXPANSION_LIBS})
+target_link_libraries(urdf_expansion PUBLIC yaml-cpp::yaml-cpp)
 
 target_include_directories(
-  generate_robot_urdf
-  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-         $<INSTALL_INTERFACE:include>)
+  urdf_expansion PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+                        $<INSTALL_INTERFACE:include>)
 
-install(TARGETS generate_robot_urdf DESTINATION lib/${PROJECT_NAME})
+install(TARGETS urdf_expansion DESTINATION lib/${PROJECT_NAME})
 
 install(DIRECTORY include/ DESTINATION include/)
 

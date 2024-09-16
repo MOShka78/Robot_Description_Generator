@@ -1,6 +1,6 @@
 #include <sys/stat.h>
 #include <unistd.h>
-#include <urdfdom/urdf_parser/urdf_parser.h>
+#include <urdf_parser/urdf_parser.h>
 
 #include <ament_index_cpp/get_package_share_directory.hpp>
 #include <filesystem>
@@ -12,9 +12,14 @@
 
 using URDFPtr = urdf::ModelInterfaceSharedPtr;
 
-class GenerateRobotURDF {
+class URDFExpansion {
  public:
-  GenerateRobotURDF(std::string path_dir, std::string filename);
+  URDFExpansion(std::string path_dir, std::string filename);
+  ~URDFExpansion() {
+    RCLCPP_INFO_STREAM(
+        rclcpp::get_logger("urdf_expansion"),
+        "Create package: " << package_path_dir_ << "/" << new_package_name);
+  }
 
  private:
   void generateYAMLlimit();

@@ -1,9 +1,9 @@
 
-#include <generate_robot_urdf/generate_robot_urdf.hpp>
-GenerateRobotURDF::GenerateRobotURDF(std::string path_dir, std::string filename)
+#include <urdf_expansion/urdf_expansion.hpp>
+URDFExpansion::URDFExpansion(std::string path_dir, std::string filename)
     : package_path_dir_(path_dir),
-      filename_(filename),
-      old_path_dir_(path_dir) {
+      old_path_dir_(path_dir),
+      filename_(filename) {
   tf_tree_ = urdf::parseURDFFile(path_dir + filename);
 
   makeDirPackage();
@@ -17,7 +17,7 @@ GenerateRobotURDF::GenerateRobotURDF(std::string path_dir, std::string filename)
   generateURDFcommon();
 }
 
-void GenerateRobotURDF::generateURDFInc() {
+void URDFExpansion::generateURDFInc() {
   std::ofstream xacro_macro_inc(package_path_dir_ + "urdf/inc/" +
                                 tf_tree_->name_ + "_property.xacro");
 
@@ -32,7 +32,7 @@ void GenerateRobotURDF::generateURDFInc() {
   xacro_macro_inc.close();
 }
 
-void GenerateRobotURDF::generateYAMLlimit() {
+void URDFExpansion::generateYAMLlimit() {
   YAML::Emitter emitter;
 
   emitter << YAML::BeginMap;
@@ -71,7 +71,7 @@ void GenerateRobotURDF::generateYAMLlimit() {
   fout.close();
 }
 
-void GenerateRobotURDF::setProperty(std::ofstream& file) {
+void URDFExpansion::setProperty(std::ofstream& file) {
   file << "     <xacro:property name=\"yaml_file\" value=\"${xacro.load_yaml(" +
               package_path_dir_ + tf_tree_->name_ + "_property.xacro" +
               ")}\"/>\n";
@@ -118,7 +118,7 @@ void GenerateRobotURDF::setProperty(std::ofstream& file) {
   }
 }
 
-void GenerateRobotURDF::generateURDFmacro() {
+void URDFExpansion::generateURDFmacro() {
   std::ofstream xacro_macro_robot(package_path_dir_ + "urdf/" +
                                   tf_tree_->name_ + "_macro.xacro");
 
@@ -137,7 +137,7 @@ void GenerateRobotURDF::generateURDFmacro() {
   xacro_macro_robot << "</robot>\n";
 }
 
-void GenerateRobotURDF::addJointsLinks(std::ofstream& file) {
+void URDFExpansion::addJointsLinks(std::ofstream& file) {
   for (const auto& [link_name, link_value] : tf_tree_->links_) {
     file << "\n\n   <!-- " << link_name << " -->\n";
 
@@ -236,7 +236,7 @@ void GenerateRobotURDF::addJointsLinks(std::ofstream& file) {
     file << "   </link>\n";
   }
 }
-void GenerateRobotURDF::generateURDFcommon() {
+void URDFExpansion::generateURDFcommon() {
   std::ofstream xacro_macro_robot(package_path_dir_ + "urdf/" +
                                   tf_tree_->name_ + ".urdf.xacro");
 
@@ -260,7 +260,7 @@ void GenerateRobotURDF::generateURDFcommon() {
   xacro_macro_robot << "</robot>\n";
 }
 
-std::string GenerateRobotURDF::getTypeJoint(uint8_t type) {
+std::string URDFExpansion::getTypeJoint(uint8_t type) {
   switch (type) {
     case urdf::Joint::REVOLUTE:
       return "revolute";
@@ -277,17 +277,17 @@ std::string GenerateRobotURDF::getTypeJoint(uint8_t type) {
   }
 }
 
-void GenerateRobotURDF::createCmakeLists() {
-  std::ifstream myfile;
-  myfile.open(
-      ament_index_cpp::get_package_share_directory("generate_robot_urdf") +
+void URDFExpansion::createCmakeLists() {
+  std::ifstream example_cmakelists;
+  example_cmakelists.open(
+      ament_index_cpp::get_package_share_directory("urdf_expansion") +
       "/config/example_cmake.txt");
 
   std::string line;
-  if (myfile.is_open()) {
-    while (getline(myfile, line)) {
-      std::ofstream myfile2(package_path_dir_ + "CMakeLists.txt",
-                            std::ios::app);
+  if (example_cmakelists.is_open()) {
+    while (getline(example_cmakelists, line)) {
+      std::ofstream cmakelists(package_path_dir_ + "CMakeLists.txt",
+                               std::ios::app);
       if (line.find("project()") != std::string::npos) {
         line.insert(line.find("(") + 1, new_package_name);
       }
@@ -301,43 +301,44 @@ void GenerateRobotURDF::createCmakeLists() {
             line.find("OUTPUT_FILE urdf/") + sizeof("OUTPUT_FILE urdf/") - 1,
             tf_tree_->name_);
       }
-      myfile2 << line << "\n";
+      cmakelists << line << "\n";
     }
-    myfile.close();
+    example_cmakelists.close();
   }
 }
 
-void GenerateRobotURDF::createPackageXML() {
-  std::ifstream myfile;
-  myfile.open(
-      ament_index_cpp::get_package_share_directory("generate_robot_urdf") +
+void URDFExpansion::createPackageXML() {
+  std::ifstream example_package_xml;
+  example_package_xml.open(
+      ament_index_cpp::get_package_share_directory("urdf_expansion") +
       "/config/example_package.xml");
 
   std::string line;
 
-  if (myfile.is_open()) {
-    while (getline(myfile, line)) {
-      std::ofstream myfile2(package_path_dir_ + "package.xml", std::ios::app);
+  if (example_package_xml.is_open()) {
+    while (getline(example_package_xml, line)) {
+      std::ofstream package_xml(package_path_dir_ + "package.xml",
+                                std::ios::app);
       if (line.find("<name></name>") != std::string::npos) {
         line.insert(line.find("</name>"), new_package_name);
       }
-      myfile2 << line << "\n";
+      package_xml << line << "\n";
     }
-    myfile.close();
+    example_package_xml.close();
   }
 }
 
-void GenerateRobotURDF::createLaunch() {
-  std::ifstream myfile;
-  myfile.open(
-      ament_index_cpp::get_package_share_directory("generate_robot_urdf") +
+void URDFExpansion::createLaunch() {
+  std::ifstream example_launch_ros;
+  example_launch_ros.open(
+      ament_index_cpp::get_package_share_directory("urdf_expansion") +
       "/config/example_ros.launch");
 
   std::string line;
 
-  if (myfile.is_open()) {
-    while (getline(myfile, line)) {
-      std::ofstream myfile2(
+  if (example_launch_ros.is_open()) {
+    while (getline(example_launch_ros, line)) {
+      std::ofstream launch_ros(
           package_path_dir_ + "launch/" + new_package_name + ".launch",
           std::ios::app);
       if (line.find("package_name") != std::string::npos) {
@@ -348,21 +349,21 @@ void GenerateRobotURDF::createLaunch() {
         line.replace(line.find("robot_name"), sizeof("robot_name") - 1,
                      tf_tree_->name_);
       }
-      myfile2 << line << "\n";
+      launch_ros << line << "\n";
     }
-    myfile.close();
+    example_launch_ros.close();
   }
 
-  std::ifstream myfile3;
-  myfile3.open(
-      ament_index_cpp::get_package_share_directory("generate_robot_urdf") +
+  std::ifstream example_launch_ros2;
+  example_launch_ros2.open(
+      ament_index_cpp::get_package_share_directory("urdf_expansion") +
       "/config/example_ros2.launch.py");
 
   line = "";
 
-  if (myfile3.is_open()) {
-    while (getline(myfile3, line)) {
-      std::ofstream myfile4(
+  if (example_launch_ros2.is_open()) {
+    while (getline(example_launch_ros2, line)) {
+      std::ofstream launch_ros2(
           package_path_dir_ + "launch/" + new_package_name + ".launch.py",
           std::ios::app);
       if (line.find("package_name") != std::string::npos) {
@@ -373,13 +374,13 @@ void GenerateRobotURDF::createLaunch() {
         line.replace(line.find("robot_name"), sizeof("robot_name") - 1,
                      tf_tree_->name_);
       }
-      myfile4 << line << "\n";
+      launch_ros2 << line << "\n";
     }
-    myfile3.close();
+    example_launch_ros2.close();
   }
 }
 
-void GenerateRobotURDF::copyMeshes() {
+void URDFExpansion::copyMeshes() {
   int cur = old_path_dir_.find("urdf");
   old_path_dir_ = old_path_dir_.substr(0, cur);
 
@@ -394,16 +395,16 @@ void GenerateRobotURDF::copyMeshes() {
                                    dest_vis_dir / entry.path().filename());
         std::filesystem::copy_file(entry.path(),
                                    dest_col_dir / entry.path().filename());
-        RCLCPP_INFO_STREAM(rclcpp::get_logger("generate_robot_urdf"),
+        RCLCPP_INFO_STREAM(rclcpp::get_logger("urdf_expansion"),
                            "Copied file: " << entry.path().filename());
       }
     }
   } else {
-    RCLCPP_INFO_STREAM(rclcpp::get_logger("generate_robot_urdf"),
+    RCLCPP_INFO_STREAM(rclcpp::get_logger("urdf_expansion"),
                        "path_meshes_dir not found");
   }
 }
-void GenerateRobotURDF::makeDirPackage() {
+void URDFExpansion::makeDirPackage() {
   new_package_name = tf_tree_->name_ + "_description";
 
   mkdir((package_path_dir_ + new_package_name).c_str(), 0777);
@@ -438,7 +439,7 @@ int main(int argc, char* argv[]) {
 
   getCurrentPathAndFileName(path, filename);
 
-  auto generate_robot_urdf =
-      std::make_shared<GenerateRobotURDF>(path, filename);
+  auto urdf_expansion = std::make_shared<URDFExpansion>(path, filename);
+
   return 0;
 }
