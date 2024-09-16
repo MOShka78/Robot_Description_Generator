@@ -1,0 +1,13 @@
+Package: ros-humble-urdf-expansion-dbgsym
+Package-Type: ddeb
+Source: ros-humble-urdf-expansion
+Version: 0.0.0-0jammy
+Auto-Built-Package: debug-symbols
+Architecture: amd64
+Maintainer: eliseev <v.eliseev@rtc.ru>
+Installed-Size: 478
+Depends: ros-humble-urdf-expansion (= 0.0.0-0jammy)
+Section: debug
+Priority: optional
+Description: debug symbols for ros-humble-urdf-expansion
+Build-Ids: f3d62743803fc84a9acdd2a71df62a91de7f4239

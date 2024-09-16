@@ -11,16 +11,7 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Debug)
 endif()
 
-include(FetchContent)
-
-FetchContent_Declare(
-  yaml-cpp
-  GIT_REPOSITORY https://github.com/jbeder/yaml-cpp.git
-  VCS_VERSION 0.8.0)
-
-FetchContent_MakeAvailable(yaml-cpp)
-
-set(URDF_EXPANSION_LIBS rclcpp urdf urdfdom urdfdom_headers)
+set(URDF_EXPANSION_LIBS rclcpp urdf urdfdom urdfdom_headers yaml-cpp)
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
@@ -31,11 +22,12 @@ endforeach()
 
 include_directories(include)
 include_directories(${URDFDOM_INCLUDE_DIRS})
+include_directories(${YAML_CPP_INCLUDE_DIRS})
 
 add_executable(urdf_expansion src/urdf_expansion.cpp)
 
 ament_target_dependencies(urdf_expansion PUBLIC ${URDF_EXPANSION_LIBS})
-target_link_libraries(urdf_expansion PUBLIC yaml-cpp::yaml-cpp)
+target_link_libraries(urdf_expansion PUBLIC ${YAML_CPP_LIBRARIES})
 
 target_include_directories(
   urdf_expansion PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>

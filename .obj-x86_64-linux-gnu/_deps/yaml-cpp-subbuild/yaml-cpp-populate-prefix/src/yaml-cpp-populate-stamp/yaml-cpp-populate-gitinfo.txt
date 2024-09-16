@@ -1,0 +1,3 @@
+repository='https://github.com/jbeder/yaml-cpp.git;VCS_VERSION;0.8.0'
+module=''
+tag='origin'

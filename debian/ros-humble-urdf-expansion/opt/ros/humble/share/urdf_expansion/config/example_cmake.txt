@@ -1,0 +1,62 @@
+cmake_minimum_required(VERSION 3.22)
+project()
+
+option(REBUILD_XACRO "REBUILD_XACRO" OFF)
+
+if(REBUILD_XACRO)
+  execute_process(
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    COMMAND xacro urdf/.urdf.xacro
+    OUTPUT_FILE urdf/.urdf)
+endif()
+
+set(ROS_FOUND FALSE)
+if(DEFINED ENV{ROS_DISTRO})
+  set(FOUND_ROS_DISTRO $ENV{ROS_DISTRO})
+  set(ROS_FOUND TRUE)
+else()
+  message("ROS distro variable not set. Trying to figure it out...")
+  set(AVAILABLE_ROS_VERSIONS
+      "melodic;lunar;kinetic;jade;indigo;noetic;humble;jazzy")
+  set(ROS_FOUND FALSE)
+  foreach(version ${AVAILABLE_ROS_VERSIONS})
+    if(NOT ROS_FOUND)
+      find_path(ROS_H ros.h PATHS /opt/ros/${version}/include/ros)
+      if(ROS_H)
+        message("Found ros version ${version}")
+        set(FOUND_ROS_DISTRO ${version})
+        set(ROS_FOUND TRUE)
+      endif()
+    endif()
+  endforeach()
+endif()
+
+if(ROS_FOUND)
+  if($ENV{ROS_DISTRO} STREQUAL "noetic")
+    find_package(catkin REQUIRED)
+    find_package(roslaunch REQUIRED)
+    find_package(rostest REQUIRED)
+    find_package(GTest)
+
+    catkin_package(CATKIN_DEPENDS)
+
+    install(DIRECTORY launch meshes urdf
+            DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+
+  elseif($ENV{ROS_DISTRO} STREQUAL "humble" OR $ENV{ROS_DISTRO} STREQUAL
+                                               "jazzy")
+    find_package(ament_cmake REQUIRED)
+
+    install(DIRECTORY launch meshes urdf DESTINATION share/${PROJECT_NAME})
+
+    ament_export_dependencies(${THIS_PACKAGE_INCLUDE_DEPENDS})
+
+    ament_package()
+
+  else()
+    message("Unknown ROS distro:")
+    message($ENV{ROS_DISTRO})
+  endif()
+else()
+  message("ROS distro is unknown.")
+endif()

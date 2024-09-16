@@ -1,0 +1,9 @@
+Package: ros-humble-urdf-expansion
+Version: 0.0.0-0jammy
+Architecture: amd64
+Maintainer: eliseev <v.eliseev@rtc.ru>
+Installed-Size: 122
+Depends: libc6 (>= 2.34), libgcc-s1 (>= 3.3.1), libstdc++6 (>= 9), libyaml-cpp0.7 (>= 0.7.0), ros-humble-urdfdom, ros-humble-rclcpp, ros-humble-urdf, ros-humble-urdfdom-headers
+Section: misc
+Priority: optional
+Description: urdf_expansion

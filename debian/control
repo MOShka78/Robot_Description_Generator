@@ -1,0 +1,12 @@
+Source: ros-humble-urdf-expansion
+Section: misc
+Priority: optional
+Maintainer: eliseev <v.eliseev@rtc.ru>
+Build-Depends: debhelper (>= 9.0.0), ros-humble-ament-cmake, ros-humble-urdf, ros-humble-urdfdom, ros-humble-urdfdom-headers
+Homepage: 
+Standards-Version: 3.9.2
+
+Package: ros-humble-urdf-expansion
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-humble-rclcpp, ros-humble-urdf, ros-humble-urdfdom, ros-humble-urdfdom-headers
+Description: urdf_expansion
