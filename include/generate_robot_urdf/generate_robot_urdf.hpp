@@ -3,11 +3,13 @@
 #include <urdfdom/urdf_parser/urdf_parser.h>
 
 #include <ament_index_cpp/get_package_share_directory.hpp>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <rclcpp/rclcpp.hpp>
 
 #include "yaml-cpp/yaml.h"
+
 using URDFPtr = urdf::ModelInterfaceSharedPtr;
 
 class GenerateRobotURDF {
@@ -20,17 +22,18 @@ class GenerateRobotURDF {
   void generateURDFmacro();
   void generateURDFcommon();
 
-  // void setPathMesh();
   void setProperty(std::ofstream& file);
   void addJointsLinks(std::ofstream& file);
   void makeDirPackage();
   void createCmakeLists();
   void createLaunch();
   void createPackageXML();
+  void copyMeshes();
 
   std::string getTypeJoint(uint8_t type);
 
-  std::string path_dir_;
+  std::string package_path_dir_;
+  std::string old_path_dir_;
   std::string filename_;
   std::string new_package_name;
 

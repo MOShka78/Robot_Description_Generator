@@ -1,22 +1,25 @@
 
 #include <generate_robot_urdf/generate_robot_urdf.hpp>
 GenerateRobotURDF::GenerateRobotURDF(std::string path_dir, std::string filename)
-    : path_dir_(path_dir), filename_(filename) {
+    : package_path_dir_(path_dir),
+      filename_(filename),
+      old_path_dir_(path_dir) {
   tf_tree_ = urdf::parseURDFFile(path_dir + filename);
 
   makeDirPackage();
   createCmakeLists();
   createPackageXML();
   createLaunch();
-  generateURDFcommon();
+  copyMeshes();
   generateYAMLlimit();
   generateURDFInc();
   generateURDFmacro();
+  generateURDFcommon();
 }
 
 void GenerateRobotURDF::generateURDFInc() {
-  std::ofstream xacro_macro_inc(path_dir_ + "urdf/inc/" + tf_tree_->name_ +
-                                "_property.xacro");
+  std::ofstream xacro_macro_inc(package_path_dir_ + "urdf/inc/" +
+                                tf_tree_->name_ + "_property.xacro");
 
   xacro_macro_inc << "<?xml version=\"1.0\"?>\n";
   xacro_macro_inc << "<robot xmlns:xacro=\"http://ros.org/wiki/xacro\">\n";
@@ -63,14 +66,15 @@ void GenerateRobotURDF::generateYAMLlimit() {
   emitter << YAML::EndMap;
   emitter << YAML::EndMap;
 
-  std::ofstream fout(path_dir_ + "config/joint_limits.yaml");
+  std::ofstream fout(package_path_dir_ + "config/joint_limits.yaml");
   fout << emitter.c_str();
   fout.close();
 }
 
 void GenerateRobotURDF::setProperty(std::ofstream& file) {
   file << "     <xacro:property name=\"yaml_file\" value=\"${xacro.load_yaml(" +
-              path_dir_ + tf_tree_->name_ + "_property.xacro" + ")}\"/>\n";
+              package_path_dir_ + tf_tree_->name_ + "_property.xacro" +
+              ")}\"/>\n";
 
   file << "   <xacro:property name=\"yaml_path\" value=\"$(find " +
               new_package_name + ")/config/joint_limits.yaml\" />\n";
@@ -115,8 +119,8 @@ void GenerateRobotURDF::setProperty(std::ofstream& file) {
 }
 
 void GenerateRobotURDF::generateURDFmacro() {
-  std::ofstream xacro_macro_robot(path_dir_ + "urdf/" + tf_tree_->name_ +
-                                  "_macro.xacro");
+  std::ofstream xacro_macro_robot(package_path_dir_ + "urdf/" +
+                                  tf_tree_->name_ + "_macro.xacro");
 
   xacro_macro_robot << "<?xml version=\"1.0\"?>\n";
   xacro_macro_robot << "<robot xmlns:xacro=\"http://ros.org/wiki/xacro\">\n";
@@ -233,8 +237,8 @@ void GenerateRobotURDF::addJointsLinks(std::ofstream& file) {
   }
 }
 void GenerateRobotURDF::generateURDFcommon() {
-  std::ofstream xacro_macro_robot(path_dir_ + "urdf/" + tf_tree_->name_ +
-                                  ".urdf.xacro");
+  std::ofstream xacro_macro_robot(package_path_dir_ + "urdf/" +
+                                  tf_tree_->name_ + ".urdf.xacro");
 
   xacro_macro_robot << "<?xml version=\"1.0\" ?>\n";
   xacro_macro_robot << "<robot name=\"" << tf_tree_->name_
@@ -273,34 +277,6 @@ std::string GenerateRobotURDF::getTypeJoint(uint8_t type) {
   }
 }
 
-// void GenerateRobotURDF::setPathMesh() {
-//   auto doc_xml = urdf::exportURDF(tf_tree_);
-
-//   TiXmlPrinter printer;
-//   printer.SetIndent("  ");
-//   doc_xml->Accept(&printer);
-//   std::string urdf_str = printer.Str();
-
-//   while (urdf_str.find("<link name=\"") != std::string::npos) {
-//     std::string link_name = urdf_str.substr(urdf_str.find("<link name=\"") +
-//                                             sizeof("<link name=\"") - 1);
-
-//     link_name = link_name.substr(0, link_name.find("\""));
-
-//     urdf_str.erase(0, urdf_str.find("<link name=\"") + sizeof("<link
-//     name=\"") -
-//                           1 + link_name.length());
-
-//     std::string path_mesh = urdf_str.substr(urdf_str.find("<mesh
-//     filename=\"") +
-//                                             sizeof("<mesh filename=\"") - 1);
-
-//     path_mesh = path_mesh.substr(0, path_mesh.find("\""));
-
-//     link_path_mesh.insert({link_name, path_mesh});
-//   }
-// }
-
 void GenerateRobotURDF::createCmakeLists() {
   std::ifstream myfile;
   myfile.open(
@@ -310,7 +286,8 @@ void GenerateRobotURDF::createCmakeLists() {
   std::string line;
   if (myfile.is_open()) {
     while (getline(myfile, line)) {
-      std::ofstream myfile2(path_dir_ + "CMakeLists.txt", std::ios::app);
+      std::ofstream myfile2(package_path_dir_ + "CMakeLists.txt",
+                            std::ios::app);
       if (line.find("project()") != std::string::npos) {
         line.insert(line.find("(") + 1, new_package_name);
       }
@@ -340,7 +317,7 @@ void GenerateRobotURDF::createPackageXML() {
 
   if (myfile.is_open()) {
     while (getline(myfile, line)) {
-      std::ofstream myfile2(path_dir_ + "package.xml", std::ios::app);
+      std::ofstream myfile2(package_path_dir_ + "package.xml", std::ios::app);
       if (line.find("<name></name>") != std::string::npos) {
         line.insert(line.find("</name>"), new_package_name);
       }
@@ -361,7 +338,8 @@ void GenerateRobotURDF::createLaunch() {
   if (myfile.is_open()) {
     while (getline(myfile, line)) {
       std::ofstream myfile2(
-          path_dir_ + "launch/" + new_package_name + ".launch", std::ios::app);
+          package_path_dir_ + "launch/" + new_package_name + ".launch",
+          std::ios::app);
       if (line.find("package_name") != std::string::npos) {
         line.replace(line.find("package_name"), sizeof("package_name") - 1,
                      new_package_name);
@@ -385,7 +363,7 @@ void GenerateRobotURDF::createLaunch() {
   if (myfile3.is_open()) {
     while (getline(myfile3, line)) {
       std::ofstream myfile4(
-          path_dir_ + "launch/" + new_package_name + ".launch.py",
+          package_path_dir_ + "launch/" + new_package_name + ".launch.py",
           std::ios::app);
       if (line.find("package_name") != std::string::npos) {
         line.replace(line.find("package_name"), sizeof("package_name") - 1,
@@ -400,19 +378,44 @@ void GenerateRobotURDF::createLaunch() {
     myfile3.close();
   }
 }
+
+void GenerateRobotURDF::copyMeshes() {
+  int cur = old_path_dir_.find("urdf");
+  old_path_dir_ = old_path_dir_.substr(0, cur);
+
+  std::filesystem::path source_dir = old_path_dir_ + "/meshes/";
+  std::filesystem::path dest_vis_dir = package_path_dir_ + "/meshes/visual/";
+  std::filesystem::path dest_col_dir = package_path_dir_ + "/meshes/collision/";
+
+  if (std::filesystem::exists(source_dir)) {
+    for (const auto& entry : std::filesystem::directory_iterator(source_dir)) {
+      if (entry.is_regular_file()) {
+        std::filesystem::copy_file(entry.path(),
+                                   dest_vis_dir / entry.path().filename());
+        std::filesystem::copy_file(entry.path(),
+                                   dest_col_dir / entry.path().filename());
+        RCLCPP_INFO_STREAM(rclcpp::get_logger("generate_robot_urdf"),
+                           "Copied file: " << entry.path().filename());
+      }
+    }
+  } else {
+    RCLCPP_INFO_STREAM(rclcpp::get_logger("generate_robot_urdf"),
+                       "path_meshes_dir not found");
+  }
+}
 void GenerateRobotURDF::makeDirPackage() {
   new_package_name = tf_tree_->name_ + "_description";
 
-  mkdir((path_dir_ + new_package_name).c_str(), 0777);
-  path_dir_ += ("/" + new_package_name + "/");
+  mkdir((package_path_dir_ + new_package_name).c_str(), 0777);
+  package_path_dir_ += ("/" + new_package_name + "/");
 
-  mkdir((path_dir_ + "urdf").c_str(), 0777);
-  mkdir((path_dir_ + "launch").c_str(), 0777);
-  mkdir((path_dir_ + "config").c_str(), 0777);
-  mkdir((path_dir_ + "meshes").c_str(), 0777);
-  mkdir((path_dir_ + "meshes/visual").c_str(), 0777);
-  mkdir((path_dir_ + "meshes/collision").c_str(), 0777);
-  mkdir((path_dir_ + "urdf/inc").c_str(), 0777);
+  mkdir((package_path_dir_ + "urdf").c_str(), 0777);
+  mkdir((package_path_dir_ + "launch").c_str(), 0777);
+  mkdir((package_path_dir_ + "config").c_str(), 0777);
+  mkdir((package_path_dir_ + "meshes").c_str(), 0777);
+  mkdir((package_path_dir_ + "meshes/visual").c_str(), 0777);
+  mkdir((package_path_dir_ + "meshes/collision").c_str(), 0777);
+  mkdir((package_path_dir_ + "urdf/inc").c_str(), 0777);
 }
 
 void getCurrentPathAndFileName(std::string& path_dir, std::string& filename) {
@@ -422,6 +425,7 @@ void getCurrentPathAndFileName(std::string& path_dir, std::string& filename) {
     filename.erase(0, filename.find("/") + 1);
   }
 }
+
 int main(int argc, char* argv[]) {
   if (argc < 2)
     throw std::runtime_error("Not enough arguments (need urdf file)");

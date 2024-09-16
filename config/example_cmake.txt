@@ -40,10 +40,6 @@ if(ROS_FOUND)
 
     catkin_package(CATKIN_DEPENDS)
 
-    if(CATKIN_ENABLE_TESTING)
-      roslaunch_add_file_check(test/roslaunch_test_bx100s.xml)
-    endif()
-
     install(DIRECTORY launch meshes urdf
             DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
 
