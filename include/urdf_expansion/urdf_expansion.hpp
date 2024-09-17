@@ -16,9 +16,8 @@ class URDFExpansion {
  public:
   URDFExpansion(std::string path_dir, std::string filename);
   ~URDFExpansion() {
-    RCLCPP_INFO_STREAM(
-        rclcpp::get_logger("urdf_expansion"),
-        "Create package: " << package_path_dir_ << "/" << new_package_name);
+    RCLCPP_INFO_STREAM(rclcpp::get_logger("urdf_expansion"),
+                       "Create package: " << package_path_dir_);
   }
 
  private:

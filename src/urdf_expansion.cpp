@@ -23,65 +23,76 @@ void URDFExpansion::generateURDFInc() {
 
   xacro_macro_inc << "<?xml version=\"1.0\"?>\n";
   xacro_macro_inc << "<robot xmlns:xacro=\"http://ros.org/wiki/xacro\">\n";
-  xacro_macro_inc << "  <xacro:macro name=\"" + tf_tree_->name_ +
-                         "_property\">\n";
 
   setProperty(xacro_macro_inc);
-  xacro_macro_inc << "  </xacro:macro>\n";
+
   xacro_macro_inc << "</robot>\n";
+
   xacro_macro_inc.close();
 }
 
 void URDFExpansion::generateYAMLlimit() {
-  YAML::Emitter emitter;
+  YAML::Emitter emitter_limit;
 
-  emitter << YAML::BeginMap;
-  emitter << YAML::Key << "joint_limits" << YAML::Value << YAML::BeginMap;
+  emitter_limit << YAML::BeginMap;
+  emitter_limit << YAML::Key << "joint_limits" << YAML::Value << YAML::BeginMap;
 
   for (const auto& [joint_name, joint_value] : tf_tree_->joints_) {
     if (joint_value->limits != nullptr) {
-      emitter << YAML::Key << joint_name << YAML::Value << YAML::BeginMap;
+      emitter_limit << YAML::Key << joint_name << YAML::Value << YAML::BeginMap;
 
-      emitter << YAML::Key << "min_position" << YAML::Value
-              << joint_value->limits->lower;
-      emitter << YAML::Key << "max_position" << YAML::Value
-              << joint_value->limits->upper;
-      emitter << YAML::Key << "max_effort" << YAML::Value
-              << joint_value->limits->effort;
-      emitter << YAML::Key << "max_velocity" << YAML::Value
-              << joint_value->limits->velocity;
-      emitter << YAML::EndMap;
+      emitter_limit << YAML::Key << "min_position" << YAML::Value
+                    << joint_value->limits->lower;
+      emitter_limit << YAML::Key << "max_position" << YAML::Value
+                    << joint_value->limits->upper;
+      emitter_limit << YAML::Key << "max_effort" << YAML::Value
+                    << joint_value->limits->effort;
+      emitter_limit << YAML::Key << "max_velocity" << YAML::Value
+                    << joint_value->limits->velocity;
+      emitter_limit << YAML::EndMap;
     }
   }
-  emitter << YAML::EndMap;
-  emitter << YAML::EndMap;
+  emitter_limit << YAML::EndMap;
+  emitter_limit << YAML::EndMap;
 
-  emitter << YAML::BeginMap;
-  emitter << YAML::Key << "link_mass" << YAML::Value << YAML::BeginMap;
+  YAML::Emitter emitter_mass;
+
+  emitter_mass << YAML::BeginMap;
+  emitter_mass << YAML::Key << "link_mass" << YAML::Value << YAML::BeginMap;
   for (const auto& [link_name, link_value] : tf_tree_->links_) {
-    emitter << YAML::Key << link_name << YAML::Value << YAML::BeginMap;
-    emitter << YAML::Key << "mass" << YAML::Value << link_value->inertial->mass;
-    emitter << YAML::EndMap;
+    emitter_mass << YAML::Key << link_name << YAML::Value << YAML::BeginMap;
+    emitter_mass << YAML::Key << "mass" << YAML::Value
+                 << link_value->inertial->mass;
+    emitter_mass << YAML::EndMap;
   }
-  emitter << YAML::EndMap;
-  emitter << YAML::EndMap;
+  emitter_mass << YAML::EndMap;
+  emitter_mass << YAML::EndMap;
 
-  std::ofstream fout(package_path_dir_ + "config/joint_limits.yaml");
-  fout << emitter.c_str();
-  fout.close();
+  std::ofstream joint_limits(package_path_dir_ + "config/joint_limits.yaml");
+  joint_limits << emitter_limit.c_str();
+  joint_limits.close();
+
+  std::ofstream link_mass(package_path_dir_ + "config/link_mass.yaml");
+  link_mass << emitter_mass.c_str();
+  link_mass.close();
 }
 
 void URDFExpansion::setProperty(std::ofstream& file) {
-  file << "   <xacro:property name=\"yaml_path\" value=\"$(find " +
+  file << "   <xacro:property name=\"yaml_path_joint_limits\" value=\"$(find " +
               new_package_name + ")/config/joint_limits.yaml\" />\n";
-  file << "   <xacro:property name=\"yaml_file\" "
-          "value=\"${xacro.load_yaml(yaml_path)}\"/>\n\n";
+  file << "   <xacro:property name=\"yaml_path_link_mass\" value=\"$(find " +
+              new_package_name + ")/config/link_mass.yaml\" />\n";
+
+  file << "   <xacro:property name=\"yaml_file_joint_limits\" "
+          "value=\"${xacro.load_yaml(yaml_path_joint_limits)}\"/>\n\n";
+  file << "   <xacro:property name=\"yaml_file_link_mass\" "
+          "value=\"${xacro.load_yaml(yaml_path_link_mass)}\"/>\n";
 
   file << "   <!-- link mass [kg] -->\n";
   for (const auto& [link_name, link_value] : tf_tree_->links_) {
     file << "   <xacro:property name=\"" << link_name << "_mass"
          << "\" "
-            "value=\"${yaml_file['link_mass']['"
+            "value=\"${yaml_file_link_mass['link_mass']['"
          << link_name << "']['mass']}\"/>\n";
   }
 
@@ -89,11 +100,11 @@ void URDFExpansion::setProperty(std::ofstream& file) {
   for (const auto& [joint_name, joint_value] : tf_tree_->joints_) {
     file << "   <xacro:property name=\"" << joint_name << "_lower_limit"
          << "\" "
-            "value=\"${yaml_file['joint_limits']['"
+            "value=\"${yaml_file_joint_limits['joint_limits']['"
          << joint_name << "']['min_position']}\"/>\n";
     file << "   <xacro:property name=\"" << joint_name << "_upper_limit"
          << "\" "
-            "value=\"${yaml_file['joint_limits']['"
+            "value=\"${yaml_file_joint_limits['joint_limits']['"
          << joint_name << "']['max_position']}\"/>\n";
   }
 
@@ -101,7 +112,7 @@ void URDFExpansion::setProperty(std::ofstream& file) {
   for (const auto& [joint_name, joint_value] : tf_tree_->joints_) {
     file << "   <xacro:property name=\"" << joint_name << "_velocity_limit"
          << "\" "
-            "value=\"${yaml_file['joint_limits']['"
+            "value=\"${yaml_file_joint_limits['joint_limits']['"
          << joint_name << "']['max_velocity']}\"/>\n";
   }
 
@@ -109,7 +120,7 @@ void URDFExpansion::setProperty(std::ofstream& file) {
   for (const auto& [joint_name, joint_value] : tf_tree_->joints_) {
     file << "   <xacro:property name=\"" << joint_name << "_effort_limit"
          << "\" "
-            "value=\"${yaml_file['joint_limits']['"
+            "value=\"${yaml_file_joint_limits['joint_limits']['"
          << joint_name << "']['max_effort']}\"/>\n";
   }
 }
@@ -126,7 +137,6 @@ void URDFExpansion::generateURDFmacro() {
   xacro_macro_robot << "  <xacro:include filename=\"$(find " +
                            new_package_name + ")/urdf/inc/" + tf_tree_->name_ +
                            "_property.xacro\" />\n";
-  xacro_macro_robot << "    <xacro:" + tf_tree_->name_ + "_property/>\n";
 
   addJointsLinks(xacro_macro_robot);
 
@@ -405,7 +415,7 @@ void URDFExpansion::makeDirPackage() {
   new_package_name = tf_tree_->name_ + "_description";
 
   mkdir((package_path_dir_ + new_package_name).c_str(), 0777);
-  package_path_dir_ += ("/" + new_package_name + "/");
+  package_path_dir_ += (new_package_name + "/");
 
   mkdir((package_path_dir_ + "urdf").c_str(), 0777);
   mkdir((package_path_dir_ + "launch").c_str(), 0777);
