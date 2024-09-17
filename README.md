@@ -5,8 +5,10 @@
 Скачаваем с последней версии релиза `.deb` и устанавливаем 
  ```bash
  wget https://github.com/MOShka78/URDF_Expansion/releases/download/0.0.1/ros-humble-urdf-expansion_0.0.1-0jammy_amd64.deb
+```
 
- dpkg -i ros-humble-urdf-expansion_0.0.1-0jammy_amd64.deb
+```
+ sudo dpkg -i ros-humble-urdf-expansion_0.0.1-0jammy_amd64.deb
  ```
 
  ## Запуск
