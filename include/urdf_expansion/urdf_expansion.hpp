@@ -12,15 +12,16 @@
 
 using URDFPtr = urdf::ModelInterfaceSharedPtr;
 
-class URDFExpansion {
- public:
+class URDFExpansion
+{
+public:
   URDFExpansion(std::string path_dir, std::string filename);
-  ~URDFExpansion() {
-    RCLCPP_INFO_STREAM(rclcpp::get_logger("urdf_expansion"),
-                       "Create package: " << package_path_dir_);
+  ~URDFExpansion()
+  {
+    RCLCPP_INFO_STREAM(rclcpp::get_logger("urdf_expansion"), "Create package: " << package_path_dir_);
   }
 
- private:
+private:
   void generateYAMLlimit();
   void generateURDFInc();
   void generateURDFmacro();
