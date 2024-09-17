@@ -1,0 +1,14 @@
+<?xml version="1.0" ?>
+<robot name="BU015X" xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <link name="world"/>
+
+  <joint name="world2base" type="fixed">
+    <parent link="world"/>
+    <child link="base_link"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <xacro:include filename="$(find BU015X_description)/urdf/BU015X_macro.xacro"/>
+  <xacro:BU015X parent_link="world"/>
+</robot>

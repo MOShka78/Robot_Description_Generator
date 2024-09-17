@@ -1,0 +1,261 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+ <xacro:macro name="BU015X" params="parent_link">
+
+  <xacro:include filename="$(find BU015X_description)/urdf/inc/BU015X_property.xacro" />
+
+
+   <!-- base_link -->
+    <joint name="${parent_link}-base_link" type="fixed">
+     <parent link="${parent_link}"/>
+     <child link="base_link"/>
+     <origin xyz="0 0 0" rpy="0 0 0"/>
+   </joint>
+   <link name="base_link">
+     <visual>
+       <geometry>
+         <mesh filename="package://BU015X_description/meshes/visual/base_link.STL"/>
+       </geometry>
+       <material name="">
+         <color rgba="0.79216 0.81961 0.93333 1" />
+       </material>
+       <origin xyz="0 0 0" rpy="0 -0 0"/>
+     </visual>
+     <collision>
+       <geometry>
+         <mesh filename="package://BU015X_description/meshes/collision/base_link.STL"/>
+       </geometry>
+       <origin xyz="0 0 0" rpy="0 -0 0"/>
+     </collision>
+     <inertial>
+       <origin xyz="0 0 0" rpy="0 0 0"/>
+       <mass value="${base_link_mass}"/>
+       <inertia ixx="7.1637" ixy="-0.0015873" ixz="-0.0030213" iyy="4.1926" iyz="-0.081824" izz="8.7241"/>
+     </inertial>
+   </link>
+
+
+   <!-- link1 -->
+    <joint name="joint1" type="revolute">
+     <axis xyz="0 0 1" rpy="0 0 0"/>
+     <limit effort="${joint1_effort_limit}" lower="${joint1_lower_limit}" upper="${joint1_upper_limit}" velocity="${joint1_velocity_limit}"/>
+     <parent link="base_link"/>
+     <child link="link1"/>
+     <origin xyz="-5.9843e-05 0.00011745 0.246" rpy="0 -0 0" />
+   </joint>
+   <link name="link1">
+     <visual>
+       <geometry>
+         <mesh filename="package://BU015X_description/meshes/visual/link1.STL"/>
+       </geometry>
+       <material name="">
+         <color rgba="0.79216 0.81961 0.93333 1" />
+       </material>
+       <origin xyz="0 0 0" rpy="0 -0 0"/>
+     </visual>
+     <collision>
+       <geometry>
+         <mesh filename="package://BU015X_description/meshes/collision/link1.STL"/>
+       </geometry>
+       <origin xyz="0 0 0" rpy="0 -0 0"/>
+     </collision>
+     <inertial>
+       <origin xyz="0 0 0" rpy="0 0 0"/>
+       <mass value="${link1_mass}"/>
+       <inertia ixx="21.028" ixy="0.067875" ixz="2.3911" iyy="20.401" iyz="-3.8727" izz="16.827"/>
+     </inertial>
+   </link>
+
+
+   <!-- link2 -->
+    <joint name="joint2" type="revolute">
+     <axis xyz="0 0 1" rpy="0 0 0"/>
+     <limit effort="${joint2_effort_limit}" lower="${joint2_lower_limit}" upper="${joint2_upper_limit}" velocity="${joint2_velocity_limit}"/>
+     <parent link="link1"/>
+     <child link="link2"/>
+     <origin xyz="-0.0094402 0.14988 0.431" rpy="0 1.5708 -0" />
+   </joint>
+   <link name="link2">
+     <visual>
+       <geometry>
+         <mesh filename="package://BU015X_description/meshes/visual/link2.STL"/>
+       </geometry>
+       <material name="">
+         <color rgba="0.79216 0.81961 0.93333 1" />
+       </material>
+       <origin xyz="0 0 0" rpy="0 -0 0"/>
+     </visual>
+     <collision>
+       <geometry>
+         <mesh filename="package://BU015X_description/meshes/collision/link2.STL"/>
+       </geometry>
+       <origin xyz="0 0 0" rpy="0 -0 0"/>
+     </collision>
+     <inertial>
+       <origin xyz="0 0 0" rpy="0 0 0"/>
+       <mass value="${link2_mass}"/>
+       <inertia ixx="10.111" ixy="-0.1466" ixz="-9.9335" iyy="60.841" iyz="-0.15034" izz="54.541"/>
+     </inertial>
+   </link>
+
+
+   <!-- link3 -->
+    <joint name="joint3" type="revolute">
+     <axis xyz="0 0 1" rpy="0 0 0"/>
+     <limit effort="${joint3_effort_limit}" lower="${joint3_lower_limit}" upper="${joint3_upper_limit}" velocity="${joint3_velocity_limit}"/>
+     <parent link="link2"/>
+     <child link="link3"/>
+     <origin xyz="-0.87 0 -0.0005" rpy="0 -0 0" />
+   </joint>
+   <link name="link3">
+     <visual>
+       <geometry>
+         <mesh filename="package://BU015X_description/meshes/visual/link3.STL"/>
+       </geometry>
+       <material name="">
+         <color rgba="0.792157 0.819608 0.933333 1" />
+       </material>
+       <origin xyz="0 0 0" rpy="0 -0 0"/>
+     </visual>
+     <collision>
+       <geometry>
+         <mesh filename="package://BU015X_description/meshes/collision/link3.STL"/>
+       </geometry>
+       <origin xyz="0 0 0" rpy="0 -0 0"/>
+     </collision>
+     <inertial>
+       <origin xyz="0 0 0" rpy="0 0 0"/>
+       <mass value="${link3_mass}"/>
+       <inertia ixx="6.23698" ixy="-2.96676" ixz="-1.39865" iyy="6.99321" iyz="-0.870152" izz="10.0305"/>
+     </inertial>
+   </link>
+
+
+   <!-- link4 -->
+    <joint name="joint4" type="revolute">
+     <axis xyz="0 0 1" rpy="0 0 0"/>
+     <limit effort="${joint4_effort_limit}" lower="${joint4_lower_limit}" upper="${joint4_upper_limit}" velocity="${joint4_velocity_limit}"/>
+     <parent link="link3"/>
+     <child link="link4"/>
+     <origin xyz="-0.407 -0.25 0.0099999" rpy="0 -1.5708 3.1416" />
+   </joint>
+   <link name="link4">
+     <visual>
+       <geometry>
+         <mesh filename="package://BU015X_description/meshes/visual/link4.STL"/>
+       </geometry>
+       <material name="">
+         <color rgba="0.792157 0.819608 0.933333 1" />
+       </material>
+       <origin xyz="0 0 0" rpy="0 -0 0"/>
+     </visual>
+     <collision>
+       <geometry>
+         <mesh filename="package://BU015X_description/meshes/collision/link4.STL"/>
+       </geometry>
+       <origin xyz="0 0 0" rpy="0 -0 0"/>
+     </collision>
+     <inertial>
+       <origin xyz="0 0 0" rpy="0 0 0"/>
+       <mass value="${link4_mass}"/>
+       <inertia ixx="15.103" ixy="0.00235047" ixz="0.104758" iyy="15.3755" iyz="-0.130751" izz="0.825033"/>
+     </inertial>
+   </link>
+
+
+   <!-- link5 -->
+    <joint name="joint5" type="revolute">
+     <axis xyz="0 0 1" rpy="0 0 0"/>
+     <limit effort="${joint5_effort_limit}" lower="${joint5_lower_limit}" upper="${joint5_upper_limit}" velocity="${joint5_velocity_limit}"/>
+     <parent link="link7"/>
+     <child link="link5"/>
+     <origin xyz="-0.47 0 0.0089" rpy="0 -0 0" />
+   </joint>
+   <link name="link5">
+     <visual>
+       <geometry>
+         <mesh filename="package://BU015X_description/meshes/visual/link5.STL"/>
+       </geometry>
+       <material name="">
+         <color rgba="0.792157 0.819608 0.933333 1" />
+       </material>
+       <origin xyz="0 0 0" rpy="0 -0 0"/>
+     </visual>
+     <collision>
+       <geometry>
+         <mesh filename="package://BU015X_description/meshes/collision/link5.STL"/>
+       </geometry>
+       <origin xyz="0 0 0" rpy="0 -0 0"/>
+     </collision>
+     <inertial>
+       <origin xyz="0 0 0" rpy="0 0 0"/>
+       <mass value="${link5_mass}"/>
+       <inertia ixx="0.0209225" ixy="4.6501e-06" ixz="-0.0027344" iyy="0.0254054" iyz="6.34556e-06" izz="0.0177296"/>
+     </inertial>
+   </link>
+
+
+   <!-- link6 -->
+    <joint name="joint6" type="revolute">
+     <axis xyz="0 0 1" rpy="0 0 0"/>
+     <limit effort="${joint6_effort_limit}" lower="${joint6_lower_limit}" upper="${joint6_upper_limit}" velocity="${joint6_velocity_limit}"/>
+     <parent link="link5"/>
+     <child link="link6"/>
+     <origin xyz="-0.084209 0 0.064" rpy="0 -1.5708 3.1416" />
+   </joint>
+   <link name="link6">
+     <visual>
+       <geometry>
+         <mesh filename="package://BU015X_description/meshes/visual/link6.STL"/>
+       </geometry>
+       <material name="">
+         <color rgba="0.792157 0.819608 0.933333 1" />
+       </material>
+       <origin xyz="0 0 0" rpy="0 -0 0"/>
+     </visual>
+     <collision>
+       <geometry>
+         <mesh filename="package://BU015X_description/meshes/collision/link6.STL"/>
+       </geometry>
+       <origin xyz="0 0 0" rpy="0 -0 0"/>
+     </collision>
+     <inertial>
+       <origin xyz="0 0 0" rpy="0 0 0"/>
+       <mass value="${link6_mass}"/>
+       <inertia ixx="0.000214218" ixy="4.84514e-12" ixz="1.6498e-08" iyy="0.000217291" iyz="3.81668e-12" izz="0.000413443"/>
+     </inertial>
+   </link>
+
+
+   <!-- link7 -->
+    <joint name="joint7" type="revolute">
+     <axis xyz="0 0 1" rpy="0 0 0"/>
+     <limit effort="${joint7_effort_limit}" lower="${joint7_lower_limit}" upper="${joint7_upper_limit}" velocity="${joint7_velocity_limit}"/>
+     <parent link="link4"/>
+     <child link="link7"/>
+     <origin xyz="-0.0729 0.03 0.973" rpy="0 1.5708 -0" />
+   </joint>
+   <link name="link7">
+     <visual>
+       <geometry>
+         <mesh filename="package://BU015X_description/meshes/visual/link7.STL"/>
+       </geometry>
+       <material name="">
+         <color rgba="0.792157 0.819608 0.933333 1" />
+       </material>
+       <origin xyz="0 0 0" rpy="0 -0 0"/>
+     </visual>
+     <collision>
+       <geometry>
+         <mesh filename="package://BU015X_description/meshes/collision/link7.STL"/>
+       </geometry>
+       <origin xyz="0 0 0" rpy="0 -0 0"/>
+     </collision>
+     <inertial>
+       <origin xyz="0 0 0" rpy="0 0 0"/>
+       <mass value="${link7_mass}"/>
+       <inertia ixx="0.265674" ixy="4.67563e-05" ixz="-0.00419845" iyy="1.40232" iyz="-0.00145834" izz="1.30155"/>
+     </inertial>
+   </link>
+ </xacro:macro>
+</robot>

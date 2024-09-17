@@ -388,10 +388,11 @@ void URDFExpansion::createLaunch() {
 }
 
 void URDFExpansion::copyMeshes() {
-  int cur = old_path_dir_.find("urdf");
-  old_path_dir_ = old_path_dir_.substr(0, cur);
+  std::filesystem::path temp_dir = package_path_dir_;
+  auto temp_dir_str =
+      temp_dir.parent_path().parent_path().parent_path().string();
+  std::filesystem::path source_dir = temp_dir_str + "/meshes";
 
-  std::filesystem::path source_dir = old_path_dir_ + "/meshes/";
   std::filesystem::path dest_vis_dir = package_path_dir_ + "/meshes/visual/";
   std::filesystem::path dest_col_dir = package_path_dir_ + "/meshes/collision/";
 
@@ -408,7 +409,7 @@ void URDFExpansion::copyMeshes() {
     }
   } else {
     RCLCPP_INFO_STREAM(rclcpp::get_logger("urdf_expansion"),
-                       "path_meshes_dir not found");
+                       "path_meshes_dir " << source_dir << " not found");
   }
 }
 void URDFExpansion::makeDirPackage() {

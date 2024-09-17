@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+   <xacro:property name="yaml_path_joint_limits" value="$(find BU015X_description)/config/joint_limits.yaml" />
+   <xacro:property name="yaml_path_link_mass" value="$(find BU015X_description)/config/link_mass.yaml" />
+   <xacro:property name="yaml_file_joint_limits" value="${xacro.load_yaml(yaml_path_joint_limits)}"/>
+
+   <xacro:property name="yaml_file_link_mass" value="${xacro.load_yaml(yaml_path_link_mass)}"/>
+   <!-- link mass [kg] -->
+   <xacro:property name="base_link_mass" value="${yaml_file_link_mass['link_mass']['base_link']['mass']}"/>
+   <xacro:property name="link1_mass" value="${yaml_file_link_mass['link_mass']['link1']['mass']}"/>
+   <xacro:property name="link2_mass" value="${yaml_file_link_mass['link_mass']['link2']['mass']}"/>
+   <xacro:property name="link3_mass" value="${yaml_file_link_mass['link_mass']['link3']['mass']}"/>
+   <xacro:property name="link4_mass" value="${yaml_file_link_mass['link_mass']['link4']['mass']}"/>
+   <xacro:property name="link5_mass" value="${yaml_file_link_mass['link_mass']['link5']['mass']}"/>
+   <xacro:property name="link6_mass" value="${yaml_file_link_mass['link_mass']['link6']['mass']}"/>
+   <xacro:property name="link7_mass" value="${yaml_file_link_mass['link_mass']['link7']['mass']}"/>
+
+   <!-- joint limits [rad] -->
+   <xacro:property name="joint1_lower_limit" value="${yaml_file_joint_limits['joint_limits']['joint1']['min_position']}"/>
+   <xacro:property name="joint1_upper_limit" value="${yaml_file_joint_limits['joint_limits']['joint1']['max_position']}"/>
+   <xacro:property name="joint2_lower_limit" value="${yaml_file_joint_limits['joint_limits']['joint2']['min_position']}"/>
+   <xacro:property name="joint2_upper_limit" value="${yaml_file_joint_limits['joint_limits']['joint2']['max_position']}"/>
+   <xacro:property name="joint3_lower_limit" value="${yaml_file_joint_limits['joint_limits']['joint3']['min_position']}"/>
+   <xacro:property name="joint3_upper_limit" value="${yaml_file_joint_limits['joint_limits']['joint3']['max_position']}"/>
+   <xacro:property name="joint4_lower_limit" value="${yaml_file_joint_limits['joint_limits']['joint4']['min_position']}"/>
+   <xacro:property name="joint4_upper_limit" value="${yaml_file_joint_limits['joint_limits']['joint4']['max_position']}"/>
+   <xacro:property name="joint5_lower_limit" value="${yaml_file_joint_limits['joint_limits']['joint5']['min_position']}"/>
+   <xacro:property name="joint5_upper_limit" value="${yaml_file_joint_limits['joint_limits']['joint5']['max_position']}"/>
+   <xacro:property name="joint6_lower_limit" value="${yaml_file_joint_limits['joint_limits']['joint6']['min_position']}"/>
+   <xacro:property name="joint6_upper_limit" value="${yaml_file_joint_limits['joint_limits']['joint6']['max_position']}"/>
+   <xacro:property name="joint7_lower_limit" value="${yaml_file_joint_limits['joint_limits']['joint7']['min_position']}"/>
+   <xacro:property name="joint7_upper_limit" value="${yaml_file_joint_limits['joint_limits']['joint7']['max_position']}"/>
+
+   <!-- joint velocity limits [rad/s] -->
+   <xacro:property name="joint1_velocity_limit" value="${yaml_file_joint_limits['joint_limits']['joint1']['max_velocity']}"/>
+   <xacro:property name="joint2_velocity_limit" value="${yaml_file_joint_limits['joint_limits']['joint2']['max_velocity']}"/>
+   <xacro:property name="joint3_velocity_limit" value="${yaml_file_joint_limits['joint_limits']['joint3']['max_velocity']}"/>
+   <xacro:property name="joint4_velocity_limit" value="${yaml_file_joint_limits['joint_limits']['joint4']['max_velocity']}"/>
+   <xacro:property name="joint5_velocity_limit" value="${yaml_file_joint_limits['joint_limits']['joint5']['max_velocity']}"/>
+   <xacro:property name="joint6_velocity_limit" value="${yaml_file_joint_limits['joint_limits']['joint6']['max_velocity']}"/>
+   <xacro:property name="joint7_velocity_limit" value="${yaml_file_joint_limits['joint_limits']['joint7']['max_velocity']}"/>
+
+   <!-- joint effort limits -->
+   <xacro:property name="joint1_effort_limit" value="${yaml_file_joint_limits['joint_limits']['joint1']['max_effort']}"/>
+   <xacro:property name="joint2_effort_limit" value="${yaml_file_joint_limits['joint_limits']['joint2']['max_effort']}"/>
+   <xacro:property name="joint3_effort_limit" value="${yaml_file_joint_limits['joint_limits']['joint3']['max_effort']}"/>
+   <xacro:property name="joint4_effort_limit" value="${yaml_file_joint_limits['joint_limits']['joint4']['max_effort']}"/>
+   <xacro:property name="joint5_effort_limit" value="${yaml_file_joint_limits['joint_limits']['joint5']['max_effort']}"/>
+   <xacro:property name="joint6_effort_limit" value="${yaml_file_joint_limits['joint_limits']['joint6']['max_effort']}"/>
+   <xacro:property name="joint7_effort_limit" value="${yaml_file_joint_limits['joint_limits']['joint7']['max_effort']}"/>
+</robot>
