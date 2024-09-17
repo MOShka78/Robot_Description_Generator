@@ -11,7 +11,8 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Debug)
 endif()
 
-set(URDF_EXPANSION_LIBS rclcpp urdf urdfdom urdfdom_headers yaml-cpp)
+set(URDF_EXPANSION_LIBS rclcpp urdf urdfdom urdfdom_headers yaml-cpp
+                        ament_index_cpp)
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
