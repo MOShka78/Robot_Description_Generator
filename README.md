@@ -10,7 +10,7 @@ Download from the latest release version `.deb` and install
 ```
 
 ```
- sudo dpkg -i ros-humble-urdf-expansion_0.0.1-0jammy_amd64.deb
+ sudo dpkg -i ros-humble-robot-description-generator_0.0.2-0jammy_amd64.deb
  ```
 
  * The main branch of this repository requires a C++17-compatible compiler.
