@@ -277,26 +277,6 @@ CMAKE_STRIP:FILEPATH=/usr/bin/strip
 // Studio IDE projects all commands are done without /nologo.
 CMAKE_VERBOSE_MAKEFILE:BOOL=ON
 
-//Directory under which to collect all populated content
-FETCHCONTENT_BASE_DIR:PATH=/home/eliseev/workspace/urdf_expansion_ws/src/URDF_Expansion/.obj-x86_64-linux-gnu/_deps
-
-//Disables all attempts to download or update content and assumes
-// source dirs already exist
-FETCHCONTENT_FULLY_DISCONNECTED:BOOL=OFF
-
-//Enables QUIET option for all content population
-FETCHCONTENT_QUIET:BOOL=ON
-
-//When not empty, overrides where to find pre-populated content
-// for yaml-cpp
-FETCHCONTENT_SOURCE_DIR_YAML-CPP:PATH=
-
-//Enables UPDATE_DISCONNECTED behavior for all content population
-FETCHCONTENT_UPDATES_DISCONNECTED:BOOL=OFF
-
-//Enables UPDATE_DISCONNECTED behavior just for population of yaml-cpp
-FETCHCONTENT_UPDATES_DISCONNECTED_YAML-CPP:BOOL=OFF
-
 //Path to a library.
 FastCDR_LIBRARY_DEBUG:FILEPATH=FastCDR_LIBRARY_DEBUG-NOTFOUND
 
@@ -311,9 +291,6 @@ FastRTPS_LIBRARY_DEBUG:FILEPATH=FastRTPS_LIBRARY_DEBUG-NOTFOUND
 
 //Path to a library.
 FastRTPS_LIBRARY_RELEASE:FILEPATH=/opt/ros/humble/lib/libfastrtps.so
-
-//Git command line client
-GIT_EXECUTABLE:FILEPATH=/usr/bin/git
 
 //Path to a library.
 OPENSSL_CRYPTO_LIBRARY:FILEPATH=/usr/lib/x86_64-linux-gnu/libcrypto.so
@@ -570,9 +547,6 @@ urdfdom_DIR:PATH=/opt/ros/humble/lib/x86_64-linux-gnu/urdfdom/cmake
 //The directory containing a CMake configuration file for urdfdom_headers.
 urdfdom_headers_DIR:PATH=/opt/ros/humble/lib/x86_64-linux-gnu/urdfdom_headers/cmake
 
-//The directory containing a CMake configuration file for yaml-cpp-populate.
-yaml-cpp-populate_DIR:PATH=yaml-cpp-populate_DIR-NOTFOUND
-
 //The directory containing a CMake configuration file for yaml-cpp.
 yaml-cpp_DIR:PATH=/usr/lib/x86_64-linux-gnu/cmake/yaml-cpp
 
@@ -751,8 +725,6 @@ FIND_PACKAGE_MESSAGE_DETAILS_OpenSSL:INTERNAL=[/usr/lib/x86_64-linux-gnu/libcryp
 FIND_PACKAGE_MESSAGE_DETAILS_Python3:INTERNAL=[/usr/bin/python3][cfound components: Interpreter ][v3.10.12()]
 //Details about finding Threads
 FIND_PACKAGE_MESSAGE_DETAILS_Threads:INTERNAL=[TRUE][v()]
-//ADVANCED property for variable: GIT_EXECUTABLE
-GIT_EXECUTABLE-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: OPENSSL_CRYPTO_LIBRARY
 OPENSSL_CRYPTO_LIBRARY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: OPENSSL_INCLUDE_DIR

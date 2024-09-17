@@ -1,5 +1,5 @@
 set(_AMENT_PACKAGE_NAME "urdf_expansion")
-set(urdf_expansion_VERSION "0.0.0")
+set(urdf_expansion_VERSION "0.0.1")
 set(urdf_expansion_MAINTAINER "eliseev <v.eliseev@rtc.ru>")
 set(urdf_expansion_BUILD_DEPENDS "urdf" "urdfdom_headers" "urdfdom")
 set(urdf_expansion_BUILDTOOL_DEPENDS "ament_cmake")

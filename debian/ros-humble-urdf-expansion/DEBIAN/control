@@ -1,5 +1,5 @@
 Package: ros-humble-urdf-expansion
-Version: 0.0.0-0jammy
+Version: 0.0.1-0jammy
 Architecture: amd64
 Maintainer: eliseev <v.eliseev@rtc.ru>
 Installed-Size: 122

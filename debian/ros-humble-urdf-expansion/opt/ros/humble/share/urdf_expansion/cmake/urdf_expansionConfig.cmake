@@ -16,7 +16,7 @@ set(_urdf_expansion_CONFIG_INCLUDED TRUE)
 
 # output package information
 if(NOT urdf_expansion_FIND_QUIETLY)
-  message(STATUS "Found urdf_expansion: 0.0.0 (${urdf_expansion_DIR})")
+  message(STATUS "Found urdf_expansion: 0.0.1 (${urdf_expansion_DIR})")
 endif()
 
 # warn when using a deprecated package
