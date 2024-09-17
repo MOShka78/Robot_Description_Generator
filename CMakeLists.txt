@@ -49,4 +49,17 @@ install(DIRECTORY include/ DESTINATION include/)
 
 install(DIRECTORY config DESTINATION share/${PROJECT_NAME})
 
+if (BUILD_TESTING)
+
+  find_package(ament_cmake_gtest REQUIRED)
+  ament_add_gtest(
+    robot_description_generator_test src/robot_description_generator.cpp
+    test/robot_description_generator_test.cpp)
+
+  ament_target_dependencies(robot_description_generator_test
+                            ${ROBOT_DESCRIPTION_GENERATOR_LIBS})
+  target_link_libraries(robot_description_generator_test ${YAML_CPP_LIBRARIES})
+
+endif ()
+
 ament_package()

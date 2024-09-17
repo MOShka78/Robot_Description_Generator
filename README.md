@@ -4,7 +4,7 @@
 
 Скачаваем с последней версии релиза `.deb` и устанавливаем 
  ```bash
- wget https://github.com/MOShka78/URDF_Expansion/releases/download/0.0.1/ros-humble-urdf-expansion_0.0.1-0jammy_amd64.deb
+ wget https://github.com/MOShka78/URDF_Expansion/releases/download/0.1.0/ros-humble-robot-description-generator_0.0.2-0jammy_amd64.deb
 ```
 
 ```
