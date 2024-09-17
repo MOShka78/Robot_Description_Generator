@@ -1,3 +1,5 @@
+#pragma once
+
 #include <sys/stat.h>
 #include <unistd.h>
 #include <urdf_parser/urdf_parser.h>
@@ -12,14 +14,22 @@
 
 using URDFPtr = urdf::ModelInterfaceSharedPtr;
 
-class URDFExpansion
+class RobotDescriptionGenerator
 {
 public:
-  URDFExpansion(std::string path_dir, std::string filename);
-  ~URDFExpansion()
+  RobotDescriptionGenerator(std::string package_path, std::string urdf_path);
+  ~RobotDescriptionGenerator()
   {
-    RCLCPP_INFO_STREAM(rclcpp::get_logger("urdf_expansion"), "Create package: " << package_path_dir_);
+    RCLCPP_INFO_STREAM(rclcpp::get_logger("robot_description_generator"), "Create package: " << package_path_);
   }
+
+  void generatePackage();
+
+protected:
+  std::shared_ptr<YAML::Emitter> createJointLimits();
+  std::shared_ptr<YAML::Emitter> createLinkMass();
+  void setProperty(std::ofstream& file);
+  void addJointsLinks(std::ofstream& file);
 
 private:
   void generateYAMLlimit();
@@ -27,8 +37,6 @@ private:
   void generateURDFmacro();
   void generateURDFcommon();
 
-  void setProperty(std::ofstream& file);
-  void addJointsLinks(std::ofstream& file);
   void makeDirPackage();
   void createCmakeLists();
   void createLaunch();
@@ -37,12 +45,10 @@ private:
 
   std::string getTypeJoint(uint8_t type);
 
-  std::string package_path_dir_;
-  std::string old_path_dir_;
-  std::string filename_;
-  std::string new_package_name;
+  std::string package_path_;
+  std::string urdf_path_;
 
-  // std::map<std::string, std::string> link_path_mesh;
+  std::string new_package_name;
 
   URDFPtr tf_tree_;
 };

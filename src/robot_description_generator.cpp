@@ -1,10 +1,12 @@
-
-#include <urdf_expansion/urdf_expansion.hpp>
-URDFExpansion::URDFExpansion(std::string path_dir, std::string filename)
-  : package_path_dir_(path_dir), old_path_dir_(path_dir), filename_(filename)
+#include <robot_description_generator/robot_description_generator.hpp>
+RobotDescriptionGenerator::RobotDescriptionGenerator(std::string package_path, std::string urdf_path)
+  : package_path_(package_path), urdf_path_(urdf_path)
 {
-  tf_tree_ = urdf::parseURDFFile(path_dir + filename);
+  tf_tree_ = urdf::parseURDFFile(urdf_path_);
+}
 
+void RobotDescriptionGenerator::generatePackage()
+{
   makeDirPackage();
   createCmakeLists();
   createPackageXML();
@@ -16,9 +18,67 @@ URDFExpansion::URDFExpansion(std::string path_dir, std::string filename)
   generateURDFcommon();
 }
 
-void URDFExpansion::generateURDFInc()
+void RobotDescriptionGenerator::generateYAMLlimit()
 {
-  std::ofstream xacro_macro_inc(package_path_dir_ + "urdf/inc/" + tf_tree_->name_ + "_property.xacro");
+  auto emitter_limit = createJointLimits();
+  auto emitter_mass = createLinkMass();
+
+  std::ofstream joint_limits(package_path_ + "config/joint_limits.yaml");
+  joint_limits << emitter_limit->c_str();
+  joint_limits.close();
+
+  std::ofstream link_mass(package_path_ + "config/link_mass.yaml");
+  link_mass << emitter_mass->c_str();
+  link_mass.close();
+}
+
+std::shared_ptr<YAML::Emitter> RobotDescriptionGenerator::createJointLimits()
+{
+  auto emitter_limit = std::make_shared<YAML::Emitter>();
+
+  *emitter_limit << YAML::BeginMap;
+  *emitter_limit << YAML::Key << "joint_limits" << YAML::Value << YAML::BeginMap;
+
+  for (const auto& [joint_name, joint_value] : tf_tree_->joints_)
+  {
+    if (joint_value->limits != nullptr)
+    {
+      *emitter_limit << YAML::Key << joint_name << YAML::Value << YAML::BeginMap;
+
+      *emitter_limit << YAML::Key << "min_position" << YAML::Value << joint_value->limits->lower;
+      *emitter_limit << YAML::Key << "max_position" << YAML::Value << joint_value->limits->upper;
+      *emitter_limit << YAML::Key << "max_effort" << YAML::Value << joint_value->limits->effort;
+      *emitter_limit << YAML::Key << "max_velocity" << YAML::Value << joint_value->limits->velocity;
+      *emitter_limit << YAML::EndMap;
+    }
+  }
+  *emitter_limit << YAML::EndMap;
+  *emitter_limit << YAML::EndMap;
+
+  return emitter_limit;
+}
+
+std::shared_ptr<YAML::Emitter> RobotDescriptionGenerator::createLinkMass()
+{
+  auto emitter_mass = std::make_shared<YAML::Emitter>();
+
+  *emitter_mass << YAML::BeginMap;
+  *emitter_mass << YAML::Key << "link_mass" << YAML::Value << YAML::BeginMap;
+  for (const auto& [link_name, link_value] : tf_tree_->links_)
+  {
+    *emitter_mass << YAML::Key << link_name << YAML::Value << YAML::BeginMap;
+    *emitter_mass << YAML::Key << "mass" << YAML::Value << link_value->inertial->mass;
+    *emitter_mass << YAML::EndMap;
+  }
+  *emitter_mass << YAML::EndMap;
+  *emitter_mass << YAML::EndMap;
+
+  return emitter_mass;
+}
+
+void RobotDescriptionGenerator::generateURDFInc()
+{
+  std::ofstream xacro_macro_inc(package_path_ + "urdf/inc/" + tf_tree_->name_ + "_property.xacro");
 
   xacro_macro_inc << "<?xml version=\"1.0\"?>\n";
   xacro_macro_inc << "<robot xmlns:xacro=\"http://ros.org/wiki/xacro\">\n";
@@ -30,52 +90,7 @@ void URDFExpansion::generateURDFInc()
   xacro_macro_inc.close();
 }
 
-void URDFExpansion::generateYAMLlimit()
-{
-  YAML::Emitter emitter_limit;
-
-  emitter_limit << YAML::BeginMap;
-  emitter_limit << YAML::Key << "joint_limits" << YAML::Value << YAML::BeginMap;
-
-  for (const auto& [joint_name, joint_value] : tf_tree_->joints_)
-  {
-    if (joint_value->limits != nullptr)
-    {
-      emitter_limit << YAML::Key << joint_name << YAML::Value << YAML::BeginMap;
-
-      emitter_limit << YAML::Key << "min_position" << YAML::Value << joint_value->limits->lower;
-      emitter_limit << YAML::Key << "max_position" << YAML::Value << joint_value->limits->upper;
-      emitter_limit << YAML::Key << "max_effort" << YAML::Value << joint_value->limits->effort;
-      emitter_limit << YAML::Key << "max_velocity" << YAML::Value << joint_value->limits->velocity;
-      emitter_limit << YAML::EndMap;
-    }
-  }
-  emitter_limit << YAML::EndMap;
-  emitter_limit << YAML::EndMap;
-
-  YAML::Emitter emitter_mass;
-
-  emitter_mass << YAML::BeginMap;
-  emitter_mass << YAML::Key << "link_mass" << YAML::Value << YAML::BeginMap;
-  for (const auto& [link_name, link_value] : tf_tree_->links_)
-  {
-    emitter_mass << YAML::Key << link_name << YAML::Value << YAML::BeginMap;
-    emitter_mass << YAML::Key << "mass" << YAML::Value << link_value->inertial->mass;
-    emitter_mass << YAML::EndMap;
-  }
-  emitter_mass << YAML::EndMap;
-  emitter_mass << YAML::EndMap;
-
-  std::ofstream joint_limits(package_path_dir_ + "config/joint_limits.yaml");
-  joint_limits << emitter_limit.c_str();
-  joint_limits.close();
-
-  std::ofstream link_mass(package_path_dir_ + "config/link_mass.yaml");
-  link_mass << emitter_mass.c_str();
-  link_mass.close();
-}
-
-void URDFExpansion::setProperty(std::ofstream& file)
+void RobotDescriptionGenerator::setProperty(std::ofstream& file)
 {
   file << "   <xacro:property name=\"yaml_path_joint_limits\" value=\"$(find " + new_package_name +
               ")/config/joint_limits.yaml\" />\n";
@@ -128,9 +143,9 @@ void URDFExpansion::setProperty(std::ofstream& file)
   }
 }
 
-void URDFExpansion::generateURDFmacro()
+void RobotDescriptionGenerator::generateURDFmacro()
 {
-  std::ofstream xacro_macro_robot(package_path_dir_ + "urdf/" + tf_tree_->name_ + "_macro.xacro");
+  std::ofstream xacro_macro_robot(package_path_ + "urdf/" + tf_tree_->name_ + "_macro.xacro");
 
   xacro_macro_robot << "<?xml version=\"1.0\"?>\n";
   xacro_macro_robot << "<robot xmlns:xacro=\"http://ros.org/wiki/xacro\">\n";
@@ -145,7 +160,7 @@ void URDFExpansion::generateURDFmacro()
   xacro_macro_robot << "</robot>\n";
 }
 
-void URDFExpansion::addJointsLinks(std::ofstream& file)
+void RobotDescriptionGenerator::addJointsLinks(std::ofstream& file)
 {
   for (const auto& [link_name, link_value] : tf_tree_->links_)
   {
@@ -231,9 +246,9 @@ void URDFExpansion::addJointsLinks(std::ofstream& file)
     file << "   </link>\n";
   }
 }
-void URDFExpansion::generateURDFcommon()
+void RobotDescriptionGenerator::generateURDFcommon()
 {
-  std::ofstream xacro_macro_robot(package_path_dir_ + "urdf/" + tf_tree_->name_ + ".urdf.xacro");
+  std::ofstream xacro_macro_robot(package_path_ + "urdf/" + tf_tree_->name_ + ".urdf.xacro");
 
   xacro_macro_robot << "<?xml version=\"1.0\" ?>\n";
   xacro_macro_robot << "<robot name=\"" << tf_tree_->name_ << "\" xmlns:xacro=\"http://ros.org/wiki/xacro\">\n\n";
@@ -252,7 +267,7 @@ void URDFExpansion::generateURDFcommon()
   xacro_macro_robot << "</robot>\n";
 }
 
-std::string URDFExpansion::getTypeJoint(uint8_t type)
+std::string RobotDescriptionGenerator::getTypeJoint(uint8_t type)
 {
   switch (type)
   {
@@ -271,17 +286,18 @@ std::string URDFExpansion::getTypeJoint(uint8_t type)
   }
 }
 
-void URDFExpansion::createCmakeLists()
+void RobotDescriptionGenerator::createCmakeLists()
 {
   std::ifstream example_cmakelists;
-  example_cmakelists.open(ament_index_cpp::get_package_share_directory("urdf_expansion") + "/config/example_cmake.txt");
+  example_cmakelists.open(ament_index_cpp::get_package_share_directory("robot_description_generator") +
+                          "/config/example_cmake.txt");
 
   std::string line;
   if (example_cmakelists.is_open())
   {
     while (getline(example_cmakelists, line))
     {
-      std::ofstream cmakelists(package_path_dir_ + "CMakeLists.txt", std::ios::app);
+      std::ofstream cmakelists(package_path_ + "CMakeLists.txt", std::ios::app);
       if (line.find("project()") != std::string::npos)
       {
         line.insert(line.find("(") + 1, new_package_name);
@@ -300,10 +316,10 @@ void URDFExpansion::createCmakeLists()
   }
 }
 
-void URDFExpansion::createPackageXML()
+void RobotDescriptionGenerator::createPackageXML()
 {
   std::ifstream example_package_xml;
-  example_package_xml.open(ament_index_cpp::get_package_share_directory("urdf_expansion") +
+  example_package_xml.open(ament_index_cpp::get_package_share_directory("robot_description_generator") +
                            "/config/example_package.xml");
 
   std::string line;
@@ -312,7 +328,7 @@ void URDFExpansion::createPackageXML()
   {
     while (getline(example_package_xml, line))
     {
-      std::ofstream package_xml(package_path_dir_ + "package.xml", std::ios::app);
+      std::ofstream package_xml(package_path_ + "package.xml", std::ios::app);
       if (line.find("<name></name>") != std::string::npos)
       {
         line.insert(line.find("</name>"), new_package_name);
@@ -323,10 +339,10 @@ void URDFExpansion::createPackageXML()
   }
 }
 
-void URDFExpansion::createLaunch()
+void RobotDescriptionGenerator::createLaunch()
 {
   std::ifstream example_launch_ros;
-  example_launch_ros.open(ament_index_cpp::get_package_share_directory("urdf_expansion") +
+  example_launch_ros.open(ament_index_cpp::get_package_share_directory("robot_description_generator") +
                           "/config/example_ros.launch");
 
   std::string line;
@@ -335,7 +351,7 @@ void URDFExpansion::createLaunch()
   {
     while (getline(example_launch_ros, line))
     {
-      std::ofstream launch_ros(package_path_dir_ + "launch/" + new_package_name + ".launch", std::ios::app);
+      std::ofstream launch_ros(package_path_ + "launch/" + new_package_name + ".launch", std::ios::app);
       if (line.find("package_name") != std::string::npos)
       {
         line.replace(line.find("package_name"), sizeof("package_name") - 1, new_package_name);
@@ -350,7 +366,7 @@ void URDFExpansion::createLaunch()
   }
 
   std::ifstream example_launch_ros2;
-  example_launch_ros2.open(ament_index_cpp::get_package_share_directory("urdf_expansion") +
+  example_launch_ros2.open(ament_index_cpp::get_package_share_directory("robot_description_generator") +
                            "/config/example_ros2.launch.py");
 
   line = "";
@@ -359,7 +375,7 @@ void URDFExpansion::createLaunch()
   {
     while (getline(example_launch_ros2, line))
     {
-      std::ofstream launch_ros2(package_path_dir_ + "launch/" + new_package_name + ".launch.py", std::ios::app);
+      std::ofstream launch_ros2(package_path_ + "launch/" + new_package_name + ".launch.py", std::ios::app);
       if (line.find("package_name") != std::string::npos)
       {
         line.replace(line.find("package_name"), sizeof("package_name") - 1, new_package_name);
@@ -374,14 +390,14 @@ void URDFExpansion::createLaunch()
   }
 }
 
-void URDFExpansion::copyMeshes()
+void RobotDescriptionGenerator::copyMeshes()
 {
-  std::filesystem::path temp_dir = package_path_dir_;
-  auto temp_dir_str = temp_dir.parent_path().parent_path().parent_path().string();
+  std::filesystem::path temp_dir = urdf_path_;
+  auto temp_dir_str = temp_dir.parent_path().parent_path().string();
   std::filesystem::path source_dir = temp_dir_str + "/meshes";
 
-  std::filesystem::path dest_vis_dir = package_path_dir_ + "/meshes/visual/";
-  std::filesystem::path dest_col_dir = package_path_dir_ + "/meshes/collision/";
+  std::filesystem::path dest_vis_dir = package_path_ + "/meshes/visual/";
+  std::filesystem::path dest_col_dir = package_path_ + "/meshes/collision/";
 
   if (std::filesystem::exists(source_dir))
   {
@@ -391,55 +407,30 @@ void URDFExpansion::copyMeshes()
       {
         std::filesystem::copy_file(entry.path(), dest_vis_dir / entry.path().filename());
         std::filesystem::copy_file(entry.path(), dest_col_dir / entry.path().filename());
-        RCLCPP_INFO_STREAM(rclcpp::get_logger("urdf_expansion"), "Copied file: " << entry.path().filename());
+        RCLCPP_INFO_STREAM(rclcpp::get_logger("robot_description_generator"),
+                           "Copied file: " << entry.path().filename());
       }
     }
   }
   else
   {
-    RCLCPP_INFO_STREAM(rclcpp::get_logger("urdf_expansion"), "path_meshes_dir " << source_dir << " not found");
+    RCLCPP_INFO_STREAM(rclcpp::get_logger("robot_description_generator"),
+                       "path_meshes_dir " << source_dir << " not found");
   }
 }
-void URDFExpansion::makeDirPackage()
+
+void RobotDescriptionGenerator::makeDirPackage()
 {
   new_package_name = tf_tree_->name_ + "_description";
 
-  mkdir((package_path_dir_ + new_package_name).c_str(), 0777);
-  package_path_dir_ += (new_package_name + "/");
+  mkdir((package_path_ + new_package_name).c_str(), 0777);
+  package_path_ += (new_package_name + "/");
 
-  mkdir((package_path_dir_ + "urdf").c_str(), 0777);
-  mkdir((package_path_dir_ + "launch").c_str(), 0777);
-  mkdir((package_path_dir_ + "config").c_str(), 0777);
-  mkdir((package_path_dir_ + "meshes").c_str(), 0777);
-  mkdir((package_path_dir_ + "meshes/visual").c_str(), 0777);
-  mkdir((package_path_dir_ + "meshes/collision").c_str(), 0777);
-  mkdir((package_path_dir_ + "urdf/inc").c_str(), 0777);
-}
-
-void getCurrentPathAndFileName(std::string& path_dir, std::string& filename)
-{
-  path_dir += "/";
-  while (filename.find("/") != std::string::npos)
-  {
-    path_dir += filename.substr(0, filename.find("/") + 1);
-    filename.erase(0, filename.find("/") + 1);
-  }
-}
-
-int main(int argc, char* argv[])
-{
-  if (argc < 2)
-    throw std::runtime_error("Not enough arguments (need urdf file)");
-
-  char current_path[FILENAME_MAX];
-  getcwd(current_path, sizeof(current_path));
-
-  std::string path = current_path;
-  std::string filename = argv[1];
-
-  getCurrentPathAndFileName(path, filename);
-
-  auto urdf_expansion = std::make_shared<URDFExpansion>(path, filename);
-
-  return 0;
+  mkdir((package_path_ + "urdf").c_str(), 0777);
+  mkdir((package_path_ + "launch").c_str(), 0777);
+  mkdir((package_path_ + "config").c_str(), 0777);
+  mkdir((package_path_ + "meshes").c_str(), 0777);
+  mkdir((package_path_ + "meshes/visual").c_str(), 0777);
+  mkdir((package_path_ + "meshes/collision").c_str(), 0777);
+  mkdir((package_path_ + "urdf/inc").c_str(), 0777);
 }
