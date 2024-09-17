@@ -6,7 +6,7 @@ The URDF Description Package Generator is a command tool that simplifies the pro
 
 Download from the latest release version `.deb` and install
  ```bash
- wget https://github.com/MOShka78/URDF_Expansion/releases/download/0.1.0/ros-humble-robot-description-generator_0.0.2-0jammy_amd64.deb
+ wget https://github.com/MOShka78/Robot_Description_Generator/releases/download/0.1.0/ros-humble-robot-description-generator_0.0.2-0jammy_amd64.deb
 ```
 
 ```
