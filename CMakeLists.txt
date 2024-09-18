@@ -47,7 +47,7 @@ install(TARGETS robot_description_generator DESTINATION lib/${PROJECT_NAME})
 
 install(DIRECTORY include/ DESTINATION include/)
 
-install(DIRECTORY config DESTINATION share/${PROJECT_NAME})
+install(DIRECTORY config test DESTINATION share/${PROJECT_NAME})
 
 if (BUILD_TESTING)
 
