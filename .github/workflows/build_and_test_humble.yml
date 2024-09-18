@@ -1,28 +1,29 @@
-name: Build and test
-on:  
-  workflow_dispatch:
-    push:
-      branches:
-        - [ "main"]
-    pull_request:
-      branches:
-        - [ "main"]
+name: Humble Source Build and Test
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  build_and_test:
+  humble_source:
     runs-on: ubuntu-22.04
-    env:
-      ROS_DISTRO: humble
-      ros_version: 2
+
     steps:
-      - run: sudo apt install libgtest-dev
-      - uses: actions/checkout@v4
-      - name: Update, build, and test
-        run: |
-          apt-get update
-          apt-get upgrade -y
-          apt-get install -y python3-pip
-          rosdep update
-          rosdep install --from-paths src --ignore-src -r -y
-          colcon build --event-handler console_direct+
-          colcon test --event-handler console_direct+
+      - uses: actions/checkout@v2
+
+      - name: Set up ROS 2
+        uses: ros-tooling/setup-ros@v0.7
+        with:
+          required-ros-distributions: humble
+              
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y python3-colcon-common-extensions && source /opt/ros/humble/setup.bash
+
+      - name: Build the workspace
+        run: . /opt/ros/humble/setup.sh && colcon build --event-handlers console_cohesion+
+
+      - name: Test the workspace
+        run: . install/setup.bash && colcon test --event-handlers console_cohesion+
