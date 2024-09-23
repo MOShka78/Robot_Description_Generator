@@ -14,14 +14,14 @@ endif ()
 set(ROBOT_DESCRIPTION_GENERATOR_LIBS
     # cmake-format: sortable
     ament_index_cpp
-    rclcpp
     urdf
     urdfdom
     urdfdom_headers
     yaml-cpp)
 
-# find dependencies
-find_package(ament_cmake REQUIRED)
+if ($ENV{ROS_VERSION} STREQUAL "2")
+  find_package(ament_cmake REQUIRED)
+endif ()
 
 foreach (Dependency IN ITEMS ${ROBOT_DESCRIPTION_GENERATOR_LIBS})
   find_package(${Dependency} REQUIRED)
@@ -34,8 +34,27 @@ include_directories(${YAML_CPP_INCLUDE_DIRS})
 add_executable(robot_description_generator src/description_generator_node.cpp
                                            src/robot_description_generator.cpp)
 
-ament_target_dependencies(robot_description_generator PUBLIC
-                          ${ROBOT_DESCRIPTION_GENERATOR_LIBS})
+if ($ENV{ROS_VERSION} STREQUAL "1")
+
+  catkin_package(INCLUDE_DIRS CATKIN_DEPENDS
+                 ${ROBOT_DESCRIPTION_GENERATOR_LIBS})
+  include_directories(include ${catkin_INCLUDE_DIRS})
+  target_link_libraries(robot_description_generator ${catkin_LIBRARIES})
+
+elseif ($ENV{ROS_VERSION} STREQUAL "2")
+  ament_target_dependencies(robot_description_generator PUBLIC
+                            ${ROBOT_DESCRIPTION_GENERATOR_LIBS})
+
+  install(TARGETS robot_description_generator DESTINATION lib/${PROJECT_NAME})
+
+  install(DIRECTORY include/ DESTINATION include/)
+
+  install(DIRECTORY config test DESTINATION share/${PROJECT_NAME})
+else ()
+  message(FATAL_ERROR "Unknown ROS distro:")
+  message($ENV{ROS_DISTRO})
+endif ()
+
 target_link_libraries(robot_description_generator PUBLIC ${YAML_CPP_LIBRARIES})
 
 target_include_directories(
@@ -43,13 +62,7 @@ target_include_directories(
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
          $<INSTALL_INTERFACE:include>)
 
-install(TARGETS robot_description_generator DESTINATION lib/${PROJECT_NAME})
-
-install(DIRECTORY include/ DESTINATION include/)
-
-install(DIRECTORY config test DESTINATION share/${PROJECT_NAME})
-
-if (BUILD_TESTING)
+if (BUILD_TESTING AND ($ENV{ROS_VERSION} STREQUAL "2"))
 
   find_package(ament_cmake_gtest REQUIRED)
   ament_add_gtest(

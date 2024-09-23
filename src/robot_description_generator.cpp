@@ -407,15 +407,13 @@ void RobotDescriptionGenerator::copyMeshes()
       {
         std::filesystem::copy_file(entry.path(), dest_vis_dir / entry.path().filename());
         std::filesystem::copy_file(entry.path(), dest_col_dir / entry.path().filename());
-        RCLCPP_INFO_STREAM(rclcpp::get_logger("robot_description_generator"),
-                           "Copied file: " << entry.path().filename());
+        std::cout << "Copied file: " << entry.path().filename() << std::endl;
       }
     }
   }
   else
   {
-    RCLCPP_INFO_STREAM(rclcpp::get_logger("robot_description_generator"),
-                       "path_meshes_dir " << source_dir << " not found");
+    std::cerr << "path_meshes_dir " << source_dir << " not found\n";
   }
 }
 

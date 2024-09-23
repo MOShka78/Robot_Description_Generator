@@ -8,7 +8,6 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
-#include <rclcpp/rclcpp.hpp>
 
 #include "yaml-cpp/yaml.h"
 
@@ -20,7 +19,7 @@ public:
   RobotDescriptionGenerator(std::string package_path, std::string urdf_path);
   ~RobotDescriptionGenerator()
   {
-    RCLCPP_INFO_STREAM(rclcpp::get_logger("robot_description_generator"), "Create package: " << package_path_);
+    std::cout << "Create package: " << package_path_ << std::endl;
   }
 
   void generatePackage();

@@ -7,20 +7,19 @@
   <maintainer email="v.eliseev@rtc.ru">eliseev</maintainer>
   <license>BSD-3-Clause</license>
 
-  <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend condition="$ROS_VERSION == 1">catkin</buildtool_depend>
+  <buildtool_depend condition="$ROS_VERSION == 2">ament_cmake</buildtool_depend>
 
   <depend>ament_index_cpp</depend>
   <depend>urdf</depend>
   <depend>urdfdom_headers</depend>
   <depend>urdfdom</depend>
 
-  <exec_depend>rclcpp</exec_depend>
+  <exec_depend condition="$ROS_VERSION == 1">catkin</exec_depend>
 
-  <build_depend>rclcpp</build_depend>
-
-  <test_depend>ament_cmake_gtest</test_depend>
-
+  <test_depend condition="$ROS_VERSION == 1">rostest</test_depend>
+  <test_depend condition="$ROS_VERSION == 2">ament_cmake_gtest</test_depend>
   <export>
-    <build_type>ament_cmake</build_type>
+    <build_type condition="$ROS_VERSION == 2">ament_cmake</build_type>
   </export>
 </package>

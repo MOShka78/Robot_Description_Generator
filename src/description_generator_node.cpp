@@ -27,8 +27,7 @@ int main(int argc, char* argv[])
   {
     package_path = current_path;
     getCurrentPathAndFilename(package_path, filename);
-    RCLCPP_WARN_STREAM(rclcpp::get_logger("robot_description_generator"),
-                       "The path for the new package is not selected");
+    std::cerr << "The path for the new package is not selected\n";
   }
   else
   {
