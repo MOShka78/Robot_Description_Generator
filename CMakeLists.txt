@@ -35,13 +35,15 @@ add_executable(robot_description_generator src/description_generator_node.cpp
                                            src/robot_description_generator.cpp)
 
 if ($ENV{ROS_VERSION} STREQUAL "1")
-
+  add_compile_definitions(ROS)
   catkin_package(INCLUDE_DIRS CATKIN_DEPENDS
                  ${ROBOT_DESCRIPTION_GENERATOR_LIBS})
   include_directories(include ${catkin_INCLUDE_DIRS})
   target_link_libraries(robot_description_generator ${catkin_LIBRARIES})
 
 elseif ($ENV{ROS_VERSION} STREQUAL "2")
+  add_compile_definitions(ROS2)
+
   ament_target_dependencies(robot_description_generator PUBLIC
                             ${ROBOT_DESCRIPTION_GENERATOR_LIBS})
 

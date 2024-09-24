@@ -1,10 +1,13 @@
 #pragma once
-
+#ifdef ROS1
+#include <ros/package.h>
+#endif
+#ifdef ROS2
+#include <ament_index_cpp/get_package_share_directory.hpp>
+#endif
 #include <sys/stat.h>
 #include <unistd.h>
 #include <urdf_parser/urdf_parser.h>
-
-#include <ament_index_cpp/get_package_share_directory.hpp>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -31,6 +34,8 @@ protected:
   void addJointsLinks(std::ofstream& file);
 
 private:
+  std::string getPackagePath(std::string package_name);
+  
   void generateYAMLlimit();
   void generateURDFInc();
   void generateURDFmacro();

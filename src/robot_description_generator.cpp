@@ -289,8 +289,7 @@ std::string RobotDescriptionGenerator::getTypeJoint(uint8_t type)
 void RobotDescriptionGenerator::createCmakeLists()
 {
   std::ifstream example_cmakelists;
-  example_cmakelists.open(ament_index_cpp::get_package_share_directory("robot_description_generator") +
-                          "/config/example_cmake.txt");
+  example_cmakelists.open(getPackagePath("robot_description_generator") + "/config/example_cmake.txt");
 
   std::string line;
   if (example_cmakelists.is_open())
@@ -319,8 +318,7 @@ void RobotDescriptionGenerator::createCmakeLists()
 void RobotDescriptionGenerator::createPackageXML()
 {
   std::ifstream example_package_xml;
-  example_package_xml.open(ament_index_cpp::get_package_share_directory("robot_description_generator") +
-                           "/config/example_package.xml");
+  example_package_xml.open(getPackagePath("robot_description_generator") + "/config/example_package.xml");
 
   std::string line;
 
@@ -342,8 +340,7 @@ void RobotDescriptionGenerator::createPackageXML()
 void RobotDescriptionGenerator::createLaunch()
 {
   std::ifstream example_launch_ros;
-  example_launch_ros.open(ament_index_cpp::get_package_share_directory("robot_description_generator") +
-                          "/config/example_ros.launch");
+  example_launch_ros.open(getPackagePath("robot_description_generator") + "/config/example_ros.launch");
 
   std::string line;
 
@@ -366,8 +363,7 @@ void RobotDescriptionGenerator::createLaunch()
   }
 
   std::ifstream example_launch_ros2;
-  example_launch_ros2.open(ament_index_cpp::get_package_share_directory("robot_description_generator") +
-                           "/config/example_ros2.launch.py");
+  example_launch_ros2.open(getPackagePath("robot_description_generator") + "/config/example_ros2.launch.py");
 
   line = "";
 
@@ -388,6 +384,16 @@ void RobotDescriptionGenerator::createLaunch()
     }
     example_launch_ros2.close();
   }
+}
+
+std::string RobotDescriptionGenerator::getPackagePath(std::string package_name)
+{
+#ifdef ROS1
+  return ros::package::getPath(package_name);
+#endif
+#ifdef ROS2
+  return ament_index_cpp::get_package_share_directory(package_name);
+#endif
 }
 
 void RobotDescriptionGenerator::copyMeshes()
