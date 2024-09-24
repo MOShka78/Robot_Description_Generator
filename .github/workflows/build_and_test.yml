@@ -13,7 +13,6 @@ jobs:
     strategy:
       matrix:
         ros_distribution:
-          - noetic
           - humble
           - iron
           - jazzy
@@ -28,10 +27,6 @@ jobs:
         # https://ros.org/reps/rep-0003.html
         # https://ros.org/reps/rep-2000.html
         include:
-          # Noetic Ninjemys (May 2020 - May 2025)
-          - docker_image: ubuntu:focal
-            ros_distribution: noetic
-            ros_version: 1
 
           # Humble Hawksbill (May 2022 - May 2027)
           - docker_image: ubuntu:jammy
@@ -59,12 +54,6 @@ jobs:
         uses: ros-tooling/setup-ros@v0.7
         with:
           required-ros-distributions: ${{ matrix.ros_distribution }}
-      - name: build and test ROS 1
-        if: ${{ matrix.ros_version == 1 }}
-        uses: ros-tooling/action-ros-ci@v0.3
-        with:
-          package-name: robot_description_generator
-          target-ros1-distro: ${{ matrix.ros_distribution }}
       - name: build and test ROS 2
         if: ${{ matrix.ros_version == 2 }}
         uses: ros-tooling/action-ros-ci@v0.3
