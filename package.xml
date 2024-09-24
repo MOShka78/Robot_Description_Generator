@@ -10,7 +10,8 @@
   <buildtool_depend condition="$ROS_VERSION == 1">catkin</buildtool_depend>
   <buildtool_depend condition="$ROS_VERSION == 2">ament_cmake</buildtool_depend>
 
-  <depend>ament_index_cpp</depend>
+  <depend condition="$ROS_VERSION == 2">ament_index_cpp</depend>
+
   <depend>urdf</depend>
   <depend>urdfdom_headers</depend>
   <depend>urdfdom</depend>

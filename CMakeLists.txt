@@ -11,16 +11,11 @@ if (NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Debug)
 endif ()
 
-set(ROBOT_DESCRIPTION_GENERATOR_LIBS
-    # cmake-format: sortable
-    ament_index_cpp
-    urdf
-    urdfdom
-    urdfdom_headers
-    yaml-cpp)
+set(ROBOT_DESCRIPTION_GENERATOR_LIBS urdf urdfdom urdfdom_headers yaml-cpp)
 
 if ($ENV{ROS_VERSION} STREQUAL "2")
   find_package(ament_cmake REQUIRED)
+  find_package(ament_index_cpp REQUIRED)
 endif ()
 
 foreach (Dependency IN ITEMS ${ROBOT_DESCRIPTION_GENERATOR_LIBS})
@@ -45,7 +40,7 @@ elseif ($ENV{ROS_VERSION} STREQUAL "2")
   add_compile_definitions(ROS2)
 
   ament_target_dependencies(robot_description_generator PUBLIC
-                            ${ROBOT_DESCRIPTION_GENERATOR_LIBS})
+                            ${ROBOT_DESCRIPTION_GENERATOR_LIBS} ament_index_cpp)
 
   install(TARGETS robot_description_generator DESTINATION lib/${PROJECT_NAME})
 
