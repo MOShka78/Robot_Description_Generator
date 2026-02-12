@@ -1,12 +1,23 @@
 #include <robot_description_generator/robot_description_generator.hpp>
 #include <gtest/gtest.h>
 
+#ifdef ROS2
+#include <ament_index_cpp/get_package_share_directory.hpp>
+#else
+#include <ros/package.h>
+#endif
+
 class RobotDescriptionGeneratorTest : public RobotDescriptionGenerator, public testing::Test
 {
 public:
   RobotDescriptionGeneratorTest()
-    : RobotDescriptionGenerator("", ament_index_cpp::get_package_share_directory("robot_description_generator") +
-                                        "/test/config/simple_test.urdf")
+    : RobotDescriptionGenerator("",
+#ifdef ROS2
+                                ament_index_cpp::get_package_share_directory("robot_description_generator") +
+                                    "/test/config/simple_test.urdf")
+#else
+                                ros::package::getPath("robot_description_generator") + "/test/config/simple_test.urdf")
+#endif
   {
   }
 };

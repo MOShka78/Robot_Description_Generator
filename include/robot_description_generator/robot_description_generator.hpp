@@ -35,7 +35,7 @@ protected:
 
 private:
   std::string getPackagePath(std::string package_name);
-  
+
   void generateYAMLlimit();
   void generateURDFInc();
   void generateURDFmacro();

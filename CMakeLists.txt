@@ -30,7 +30,7 @@ add_executable(robot_description_generator src/description_generator_node.cpp
                                            src/robot_description_generator.cpp)
 
 if ($ENV{ROS_VERSION} STREQUAL "1")
-  add_compile_definitions(ROS)
+  add_compile_definitions(ROS ROS1)
   catkin_package(INCLUDE_DIRS CATKIN_DEPENDS
                  ${ROBOT_DESCRIPTION_GENERATOR_LIBS})
   include_directories(include ${catkin_INCLUDE_DIRS})
@@ -59,6 +59,19 @@ target_include_directories(
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
          $<INSTALL_INTERFACE:include>)
 
+if (BUILD_TESTING AND ($ENV{ROS_VERSION} STREQUAL "1"))
+  find_package(rostest REQUIRED)
+  catkin_add_gtest(
+    robot_description_generator_test src/robot_description_generator.cpp
+    test/robot_description_generator_test.cpp)
+  target_link_libraries(robot_description_generator_test ${catkin_LIBRARIES}
+                        ${YAML_CPP_LIBRARIES})
+  target_include_directories(
+    robot_description_generator_test
+    PRIVATE include ${catkin_INCLUDE_DIRS} ${URDFDOM_INCLUDE_DIRS}
+            ${YAML_CPP_INCLUDE_DIRS})
+endif ()
+
 if (BUILD_TESTING AND ($ENV{ROS_VERSION} STREQUAL "2"))
 
   find_package(ament_cmake_gtest REQUIRED)
@@ -67,9 +80,11 @@ if (BUILD_TESTING AND ($ENV{ROS_VERSION} STREQUAL "2"))
     test/robot_description_generator_test.cpp)
 
   ament_target_dependencies(robot_description_generator_test
-                            ${ROBOT_DESCRIPTION_GENERATOR_LIBS})
+                            ${ROBOT_DESCRIPTION_GENERATOR_LIBS} ament_index_cpp)
   target_link_libraries(robot_description_generator_test ${YAML_CPP_LIBRARIES})
 
 endif ()
 
-ament_package()
+if ($ENV{ROS_VERSION} STREQUAL "2")
+  ament_package()
+endif ()

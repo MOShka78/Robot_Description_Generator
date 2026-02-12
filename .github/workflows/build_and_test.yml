@@ -55,6 +55,7 @@ jobs:
     container:
       image: ${{ matrix.docker_image }}
     steps:
+      - uses: actions/checkout@v4
       - name: setup ROS environment
         uses: ros-tooling/setup-ros@v0.7
         with:
@@ -65,9 +66,11 @@ jobs:
         with:
           package-name: robot_description_generator
           target-ros1-distro: ${{ matrix.ros_distribution }}
+          run-tests: true
       - name: build and test ROS 2
         if: ${{ matrix.ros_version == 2 }}
         uses: ros-tooling/action-ros-ci@v0.3
         with:
           package-name: robot_description_generator
           target-ros2-distro: ${{ matrix.ros_distribution }}
+          run-tests: true
