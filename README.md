@@ -1,64 +1,115 @@
 # Robot_Description_Generator
 
 ## Overview
-The URDF Description Package Generator is a command tool that simplifies the process of creating ROS2/ROS description packages for robots designed using SW2URDF (SolidWorks to URDF). It automatically generates a complete ROS2 package with launch files, configuration files, and organized URDF files, saving you time and effort. 
+
+The URDF Description Package Generator is a command-line tool that simplifies creating ROS/ROS 2 description packages for robots designed with SW2URDF (SolidWorks to URDF). It automatically generates a complete package with launch files, configuration files, and organized URDF/xacro files.
+
+**Supports:** ROS 1 (Noetic), ROS 2 (Humble, Iron, Jazzy, Rolling)
+
 ## Installation
 
-Download from the latest release version `.deb` and install
- ```bash
- wget https://github.com/MOShka78/Robot_Description_Generator/releases/download/0.1.0/ros-humble-robot-description-generator_0.0.2-0jammy_amd64.deb
-```
+### Option 1: Debian packages (recommended)
 
-```
- sudo dpkg -i ros-humble-robot-description-generator_0.0.2-0jammy_amd64.deb
- ```
+Download the `.deb` for your ROS 2 distribution from [Releases](https://github.com/MOShka78/Robot_Description_Generator/releases), then install:
 
- * The main branch of this repository requires a C++17-compatible compiler.
-
- ## Launch
-1) Create a package in the directory where the file is located `urdf`
+**ROS 2 Humble (Ubuntu 22.04):**
 ```bash
-ros2 run robot_description_generator robot_description_generator file_urdf.urdf
+wget https://github.com/MOShka78/Robot_Description_Generator/releases/download/<tag>/ros-humble-robot-description-generator_*.deb
+sudo dpkg -i ros-humble-robot-description-generator_*.deb
+sudo apt install -f
 ```
-2) Create a package with a path
+
+**ROS 2 Iron (Ubuntu 22.04):**
 ```bash
-ros2 run robot_description_generator robot_description_generator file_urdf.urdf /workspace/packages
+wget https://github.com/MOShka78/Robot_Description_Generator/releases/download/<tag>/ros-iron-robot-description-generator_*.deb
+sudo dpkg -i ros-iron-robot-description-generator_*.deb
+sudo apt install -f
 ```
 
- ## Usage
-The program automatically generates a `descriprion` package under `ros2/ros` using your `urdf` obtained from `SW2URDF`.
+**ROS 2 Jazzy (Ubuntu 24.04):**
+```bash
+wget https://github.com/MOShka78/Robot_Description_Generator/releases/download/<tag>/ros-jazzy-robot-description-generator_*.deb
+sudo dpkg -i ros-jazzy-robot-description-generator_*.deb
+sudo apt install -f
+```
 
-The generated package has the following structure:
-```Markdown
-.
-│your_name_description/
+Replace `<tag>` with the release tag (e.g. `v0.0.2-abc1234`).
+
+### Option 2: Build from source
+
+**Requirements:** C++17 compiler, ROS 1 Noetic or ROS 2 (Humble/Iron/Jazzy)
+
+```bash
+cd ~/ros2_ws/src 
+git clone https://github.com/MOShka78/Robot_Description_Generator.git
+cd ..
+```
+
+**ROS 2:**
+```bash
+source /opt/ros/humble/setup.bash
+rosdep install --from-paths src --ignore-src -y
+colcon build --packages-select robot_description_generator
+source install/setup.bash
+```
+
+**ROS 1:**
+```bash
+source /opt/ros/noetic/setup.bash
+rosdep install --from-paths src --ignore-src -y
+catkin build
+source devel/setup.bash
+```
+
+## Usage
+
+### Command syntax
+
+**ROS 2:**
+```bash
+
+ros2 run robot_description_generator robot_description_generator <file.urdf>
+
+ros2 run robot_description_generator robot_description_generator <file.urdf> </path/to/output>
+```
+
+**ROS 1:**
+```bash
+rosrun robot_description_generator robot_description_generator <file.urdf> </path/to/output>
+```
+
+### Generated package structure
+
+The tool creates a `*_description` package:
+
+```
+<robot>_description/
 ├── config/
 │   ├── joint_limits.yaml
 │   └── link_mass.yaml
 ├── launch/
-│   ├── your_name_description.launch    // for ros
-│   └── your_name_description.launch.py // for ros2
+│   ├── <robot>_description.launch      # ROS 1
+│   └── <robot>_description.launch.py  # ROS 2
 ├── meshes/
 │   ├── visual/
-│   │   └── mesh.STL                    // Same in two folders (just copied from SW2URDF)
-│   └── collision/
 │   │   └── mesh.STL
+│   └── collision/
+│       └── mesh.STL
 ├── urdf/
 │   ├── inc/
-│   │   └── your_name_property.xacro
-│   ├── your_name_macro.xacro
-│   └── your_name.urdf.xacro
+│   │   └── <robot>_property.xacro
+│   ├── <robot>_macro.xacro
+│   └── <robot>.urdf.xacro
 ├── CMakeLists.txt
-└──  package.xml
+└── package.xml
 ```
 
-> If an error occurs after generation, check the correctness of the exported `urdf`. You can check it using the following command.
+### Tips
 
-```
-check_urdf file.urdf
-```
-> It is also worth checking that all `joint` whose type is not `fixed` have `axis` specified.
-
+> **URDF validation:** Before generation, verify the exported URDF:
+> ```bash
+> check_urdf file.urdf
+> ```
 
 ## Example
 

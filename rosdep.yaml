@@ -1,0 +1,17 @@
+# Rosdep override for urdfdom packages - bloom cannot resolve these
+# when rosdistro index has issues (e.g. in CI)
+urdfdom_headers:
+  ubuntu:
+    focal: [liburdfdom-headers-dev]
+    jammy: [liburdfdom-headers-dev]
+    noble: [liburdfdom-headers-dev]
+urdfdom:
+  ubuntu:
+    focal: [liburdfdom-dev]
+    jammy: [liburdfdom-dev]
+    noble: [liburdfdom-dev]
+yaml-cpp:
+  ubuntu:
+    focal: [libyaml-cpp-dev]
+    jammy: [libyaml-cpp-dev]
+    noble: [libyaml-cpp-dev]

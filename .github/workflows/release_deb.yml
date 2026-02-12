@@ -1,0 +1,139 @@
+name: Release with Debian Packages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:  # Ручной запуск из вкладки Actions
+
+jobs:
+  build-debs:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - ros_distro: noetic
+            ubuntu: focal
+            image: ros:noetic-ros-base-focal
+          - ros_distro: humble
+            ubuntu: jammy
+            image: ros:humble-ros-base-jammy
+          - ros_distro: iron
+            ubuntu: jammy
+            image: ros:iron-ros-base-jammy
+          - ros_distro: jazzy
+            ubuntu: noble
+            image: ros:jazzy-ros-base-noble
+
+    container:
+      image: ${{ matrix.image }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set package path
+        id: pkg
+        run: |
+          if [[ -d "Robot_Description_Generator" ]]; then
+            echo "path=Robot_Description_Generator" >> $GITHUB_OUTPUT
+          else
+            echo "path=." >> $GITHUB_OUTPUT
+          fi
+
+      - name: Install build deps
+        run: |
+          apt-get update -qq
+          apt-get install -y -qq python3-bloom fakeroot dpkg-dev debhelper dh-python build-essential cmake
+
+      - name: Init rosdep
+        run: |
+          rosdep init || true
+          # Add local rosdep override for urdfdom/urdfdom_headers (bloom fails to resolve in CI)
+          echo "yaml file://$GITHUB_WORKSPACE/rosdep.yaml" > /etc/ros/rosdep/sources.list.d/99-urdfdom-override.list
+          rosdep update --include-eol-distros
+
+      - name: Generate Debian package
+        run: |
+          cd ${{ steps.pkg.outputs.path }}
+          bloom-generate rosdebian --os-name ubuntu --os-version ${{ matrix.ubuntu }} --ros-distro ${{ matrix.ros_distro }}
+          apt-get update -qq
+          apt-get build-dep -y .
+          fakeroot debian/rules binary
+        env:
+          ROS_DISTRO: ${{ matrix.ros_distro }}
+          ROS_VERSION: ${{ matrix.ros_distro == 'noetic' && '1' || '2' }}
+
+      - name: Collect deb artifacts
+        run: |
+          mkdir -p debs
+          # bloom/dh puts .deb in parent of package dir (one level above workspace root)
+          find .. -maxdepth 2 -name "*.deb" -exec cp {} debs/ \; 2>/dev/null || true
+          find . -name "*.deb" -not -path "./debs/*" -exec cp {} debs/ \; 2>/dev/null || true
+          echo "Collected .deb files:"
+          ls -la debs/
+
+      - name: Upload deb artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: debs-${{ matrix.ros_distro }}
+          path: debs/
+          if-no-files-found: error
+
+  release:
+    runs-on: ubuntu-latest
+    needs: build-debs
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get package version
+        id: version
+        run: |
+          PKG_XML="package.xml"
+          [[ -d "Robot_Description_Generator" ]] && PKG_XML="Robot_Description_Generator/package.xml"
+          VERSION=$(grep -oP '(?<=<version>)[^<]+' "$PKG_XML" | head -1)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Download all deb artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: debs-all
+          pattern: debs-*
+          merge-multiple: true
+
+      - name: Merge deb artifacts
+        run: |
+          mkdir -p debs
+          echo "Contents of debs-all:"
+          ls -laR debs-all 2>/dev/null || true
+          # Ensure debs-all exists (download-artifact may not create it if 0 artifacts)
+          mkdir -p debs-all
+          find debs-all -name "*.deb" -exec cp {} debs/ \;
+          echo "Collected debs:"
+          ls -la debs/
+          if [ -z "$(ls -A debs 2>/dev/null)" ]; then
+            echo "::error::No .deb files found. Check build-debs job."
+            exit 1
+          fi
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.version }}-${{ github.sha }}
+          name: Release v${{ steps.version.outputs.version }}
+          body: |
+            ## robot_description_generator v${{ steps.version.outputs.version }}
+
+            Deb packages for ROS 1 (Noetic) and ROS 2 (Humble, Iron, Jazzy).
+
+            ### Установка
+
+            1. Скачайте .deb для нужного дистрибутива ROS
+            2. `sudo dpkg -i ros-<distro>-robot-description-generator_*_amd64.deb`
+            3. `sudo apt install -f`
+          files: debs/*.deb
+          fail_on_unmatched_files: false
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

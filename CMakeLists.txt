@@ -13,7 +13,11 @@ endif ()
 
 set(ROBOT_DESCRIPTION_GENERATOR_LIBS urdf urdfdom urdfdom_headers yaml-cpp)
 
-if ($ENV{ROS_VERSION} STREQUAL "2")
+find_package(Threads REQUIRED)
+
+if ($ENV{ROS_VERSION} STREQUAL "1")
+  find_package(catkin REQUIRED COMPONENTS urdf roscpp)
+elseif ($ENV{ROS_VERSION} STREQUAL "2")
   find_package(ament_cmake REQUIRED)
   find_package(ament_index_cpp REQUIRED)
 endif ()
@@ -31,16 +35,18 @@ add_executable(robot_description_generator src/description_generator_node.cpp
 
 if ($ENV{ROS_VERSION} STREQUAL "1")
   add_compile_definitions(ROS ROS1)
-  catkin_package(INCLUDE_DIRS CATKIN_DEPENDS
-                 ${ROBOT_DESCRIPTION_GENERATOR_LIBS})
+  # CATKIN_DEPENDS only catkin packages; urdfdom/urdfdom_headers/yaml-cpp are system libs
+  catkin_package(INCLUDE_DIRS CATKIN_DEPENDS urdf roscpp)
   include_directories(include ${catkin_INCLUDE_DIRS})
-  target_link_libraries(robot_description_generator ${catkin_LIBRARIES})
+  target_link_libraries(robot_description_generator PUBLIC
+                        ${catkin_LIBRARIES} ${URDFDOM_LIBRARIES} Threads::Threads)
 
 elseif ($ENV{ROS_VERSION} STREQUAL "2")
   add_compile_definitions(ROS2)
 
   ament_target_dependencies(robot_description_generator PUBLIC
                             ${ROBOT_DESCRIPTION_GENERATOR_LIBS} ament_index_cpp)
+  target_link_libraries(robot_description_generator PUBLIC Threads::Threads)
 
   install(TARGETS robot_description_generator DESTINATION lib/${PROJECT_NAME})
 
@@ -65,7 +71,7 @@ if (BUILD_TESTING AND ($ENV{ROS_VERSION} STREQUAL "1"))
     robot_description_generator_test src/robot_description_generator.cpp
     test/robot_description_generator_test.cpp)
   target_link_libraries(robot_description_generator_test ${catkin_LIBRARIES}
-                        ${YAML_CPP_LIBRARIES})
+                        ${URDFDOM_LIBRARIES} ${YAML_CPP_LIBRARIES} Threads::Threads)
   target_include_directories(
     robot_description_generator_test
     PRIVATE include ${catkin_INCLUDE_DIRS} ${URDFDOM_INCLUDE_DIRS}
